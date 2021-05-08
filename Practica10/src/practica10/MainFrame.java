@@ -507,16 +507,38 @@ public class MainFrame extends javax.swing.JFrame
      * the actual internal frame.
      * 
      * @param lookupTable
-     * @param image
      */
-    private void applyLookup(LookupTable lookupTable, BufferedImage image)
+    private void applyLookup(LookupTable lookupTable)
     {
         if (internalFrame != null) {
+            BufferedImage image = internalFrame.getCanvas2D().getImage(false);
             if(image != null){
                 try{
                     LookupOp lookupOP = new LookupOp(lookupTable, null);
+                    lookupOP.filter(image , image);
+                    internalFrame.getCanvas2D().repaint();
+                } catch(Exception e){
+                    System.err.println(e.getLocalizedMessage());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Method to apply the LookupTable to the canvas' image of 
+     * the actual internal frame using a slider.
+     * 
+     * @param lookupTable
+     */
+    private void applyLookupFromSlider(LookupTable lookupTable)
+    {
+        if (internalFrame != null) {
+            if(sourceImage != null){
+                try{
+                    LookupOp lookupOP = new LookupOp(lookupTable, null);
                     internalFrame.getCanvas2D().setImage(
-                            lookupOP.filter(image , null));
+                            lookupOP.filter(sourceImage , null)
+                    );
                     internalFrame.getCanvas2D().repaint();
                 } catch(Exception e){
                     System.err.println(e.getLocalizedMessage());
@@ -1586,24 +1608,21 @@ public class MainFrame extends javax.swing.JFrame
     private void contrastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastActionPerformed
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_SFUNCION),
-                internalFrame.getCanvas2D().getImage(false)
+                        LookupTableProducer.TYPE_SFUNCION)
         );
     }//GEN-LAST:event_contrastActionPerformed
 
     private void illuminateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_illuminateActionPerformed
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_ROOT),
-                internalFrame.getCanvas2D().getImage(false)
+                        LookupTableProducer.TYPE_ROOT)
         );
     }//GEN-LAST:event_illuminateActionPerformed
 
     private void darkenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_darkenActionPerformed
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_POWER),
-                internalFrame.getCanvas2D().getImage(false)
+                        LookupTableProducer.TYPE_POWER)
         );
     }//GEN-LAST:event_darkenActionPerformed
 
@@ -1656,24 +1675,19 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionSliderFocusLost
 
     private void quadraticFunctionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderStateChanged
-        this.applyLookup(
-                this.quadraticFunctionTable(quadraticFunctionSlider.getValue()),
-                sourceImage
+        this.applyLookupFromSlider(
+                this.quadraticFunctionTable(quadraticFunctionSlider.getValue())
         );
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged
 
     private void thresholdFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_thresholdFunctionActionPerformed
-        this.applyLookup(
-                this.thresholdFunctionTable(127),
-                internalFrame.getCanvas2D().getImage(false)
-        );
+        this.applyLookup(this.thresholdFunctionTable(127));
     }//GEN-LAST:event_thresholdFunctionActionPerformed
 
     private void negativeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_negativeActionPerformed
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_NEGATIVE),
-                internalFrame.getCanvas2D().getImage(false)
+                        LookupTableProducer.TYPE_NEGATIVE)
         );
     }//GEN-LAST:event_negativeActionPerformed
 

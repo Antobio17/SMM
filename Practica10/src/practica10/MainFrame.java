@@ -1606,6 +1606,9 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_filterComboBoxFocusLost
 
     private void contrastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_SFUNCION)
@@ -1613,6 +1616,9 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_contrastActionPerformed
 
     private void illuminateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_illuminateActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_ROOT)
@@ -1620,6 +1626,9 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_illuminateActionPerformed
 
     private void darkenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_darkenActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_POWER)
@@ -1658,10 +1667,16 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_twoHundredSeventyDegreesRotationActionPerformed
 
     private void scaleInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleInActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.scaleImage(1.25f, 1.25f);
     }//GEN-LAST:event_scaleInActionPerformed
 
     private void scaleOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleOutActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.scaleImage(0.75f, 0.75f);
     }//GEN-LAST:event_scaleOutActionPerformed
 
@@ -1681,10 +1696,16 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged
 
     private void thresholdFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_thresholdFunctionActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.applyLookup(this.thresholdFunctionTable(127));
     }//GEN-LAST:event_thresholdFunctionActionPerformed
 
     private void negativeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_negativeActionPerformed
+        if(tipOverFilters.isSelected())
+                this.tipOverShapes();
+        
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_NEGATIVE)

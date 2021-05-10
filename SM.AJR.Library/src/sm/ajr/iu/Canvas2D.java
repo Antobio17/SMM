@@ -116,7 +116,7 @@ public class Canvas2D extends javax.swing.JPanel {
     {
         if (drawVector) {
             BufferedImage imageOut = new BufferedImage(
-                    image.getWidth(), image.getHeight(), image.getType());
+                    image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
             boolean actualOpaque = this.isOpaque();
             if (image.getColorModel().hasAlpha()) {
                 this.setOpaque(false);

@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.image.BandCombineOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ByteLookupTable;
 import java.awt.image.ColorModel;
@@ -222,15 +223,15 @@ public class MainFrame extends javax.swing.JFrame
      * @return LookupTable
      */
     public LookupTable thresholdFunctionTable(int threshold){
-        double Max = Math.pow(255, 1/3);
-        double K = 255.0/Max;
+        double Max = Math.log(128.0 + 1.0);
+        double K = 128.0/Max;
  
         byte lookupTable[] = new byte[256];
         
-        for(int i = 0; i < 127; i++)
+        for(int i = 0; i < 128; i++)
+            lookupTable[i] = (byte)(K*(Math.log(1.0 + i)));
+        for(int i = 128; i < 256; i++)
             lookupTable[i] = (byte)i;
-        for(int i = 127; i < 256; i++)
-            lookupTable[i] = (byte)(K*(Math.pow(i, 1/2)));
         
         
         ByteLookupTable slt = new ByteLookupTable(0,lookupTable);
@@ -511,11 +512,11 @@ public class MainFrame extends javax.swing.JFrame
     private void applyLookup(LookupTable lookupTable)
     {
         if (internalFrame != null) {
-            BufferedImage image = internalFrame.getCanvas2D().getImage(false);
-            if(image != null){
+            if(sourceImage != null){
                 try{
                     LookupOp lookupOP = new LookupOp(lookupTable, null);
-                    lookupOP.filter(image , image);
+                    lookupOP.filter(sourceImage , sourceImage);
+                    internalFrame.getCanvas2D().setImage(sourceImage);
                     internalFrame.getCanvas2D().repaint();
                 } catch(Exception e){
                     System.err.println(e.getLocalizedMessage());
@@ -568,6 +569,28 @@ public class MainFrame extends javax.swing.JFrame
                 }
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
+            }
+        }
+    }
+    
+    /**
+     * Method to apply the band combine operator to the canvas' image of the actual
+     * internal frame.
+     * 
+     * @param matrix 
+     */
+    private void applyCombineOp(float[][] matrix)
+    {
+        if(internalFrame != null){
+            if(sourceImage != null){
+                try{
+                    BandCombineOp bandCombineop = new BandCombineOp(matrix, null);
+                    bandCombineop.filter(sourceImage.getRaster(), sourceImage.getRaster());
+                    internalFrame.getCanvas2D().setImage(sourceImage);
+                    internalFrame.getCanvas2D().repaint();
+                } catch(Exception e){
+                    System.err.println(e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -711,8 +734,12 @@ public class MainFrame extends javax.swing.JFrame
         contrast = new javax.swing.JButton();
         illuminate = new javax.swing.JButton();
         darken = new javax.swing.JButton();
+        negative = new javax.swing.JButton();
         quadraticFunctionPanel = new javax.swing.JPanel();
         quadraticFunctionSlider = new javax.swing.JSlider();
+        quadraticFunction = new javax.swing.JButton();
+        yellowBandCombination = new javax.swing.JButton();
+        greenBandCombination = new javax.swing.JButton();
         rotationPanel = new javax.swing.JPanel();
         rotationSlider = new javax.swing.JSlider();
         ninetyDegreesRotation = new javax.swing.JButton();
@@ -723,8 +750,6 @@ public class MainFrame extends javax.swing.JFrame
         scaleOut = new javax.swing.JButton();
         thresholdFunctionPanel = new javax.swing.JPanel();
         thresholdFunction = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        negative = new javax.swing.JButton();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -913,7 +938,7 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(statusBarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1412, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1415, Short.MAX_VALUE)
                 .addComponent(statusBarVariable)
                 .addGap(21, 21, 21))
         );
@@ -988,6 +1013,9 @@ public class MainFrame extends javax.swing.JFrame
         darken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/oscurecer.png"))); // NOI18N
         darken.addActionListener(formListener);
 
+        negative.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/negative.png"))); // NOI18N
+        negative.addActionListener(formListener);
+
         javax.swing.GroupLayout contrastPanelLayout = new javax.swing.GroupLayout(contrastPanel);
         contrastPanel.setLayout(contrastPanelLayout);
         contrastPanelLayout.setHorizontalGroup(
@@ -998,51 +1026,79 @@ public class MainFrame extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(illuminate, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(darken, javax.swing.GroupLayout.PREFERRED_SIZE, 33, Short.MAX_VALUE)
-                .addGap(4, 4, 4))
+                .addComponent(darken, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(negative, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         contrastPanelLayout.setVerticalGroup(
             contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(contrastPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(contrast, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(illuminate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(darken, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(negative, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(darken, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(illuminate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(contrast, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Cuadrática"));
+        quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Otros"));
 
+        quadraticFunctionSlider.setMajorTickSpacing(50);
         quadraticFunctionSlider.setMaximum(255);
+        quadraticFunctionSlider.setMinorTickSpacing(10);
+        quadraticFunctionSlider.setPaintTicks(true);
+        quadraticFunctionSlider.setToolTipText("Función Cuadrática");
+        quadraticFunctionSlider.setValue(0);
         quadraticFunctionSlider.addChangeListener(formListener);
         quadraticFunctionSlider.addFocusListener(formListener);
+
+        quadraticFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cuadratica.png"))); // NOI18N
+        quadraticFunction.addActionListener(formListener);
+
+        yellowBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/combinar.png"))); // NOI18N
+        yellowBandCombination.addActionListener(formListener);
+
+        greenBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/combinarGreen.png"))); // NOI18N
+        greenBandCombination.addActionListener(formListener);
 
         javax.swing.GroupLayout quadraticFunctionPanelLayout = new javax.swing.GroupLayout(quadraticFunctionPanel);
         quadraticFunctionPanel.setLayout(quadraticFunctionPanelLayout);
         quadraticFunctionPanelLayout.setHorizontalGroup(
             quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, quadraticFunctionPanelLayout.createSequentialGroup()
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(44, 44, 44)))
+            .addGroup(quadraticFunctionPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(greenBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         quadraticFunctionPanelLayout.setVerticalGroup(
             quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(quadraticFunctionPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
-                    .addContainerGap()))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, quadraticFunctionPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(yellowBandCombination, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(greenBandCombination, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         rotationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Rotación"));
 
+        rotationSlider.setMajorTickSpacing(180);
         rotationSlider.setMaximum(360);
         rotationSlider.setMinimum(-360);
+        rotationSlider.setMinorTickSpacing(60);
+        rotationSlider.setPaintTicks(true);
+        rotationSlider.setValue(0);
         rotationSlider.addChangeListener(formListener);
         rotationSlider.addFocusListener(formListener);
 
@@ -1075,11 +1131,15 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(rotationPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ninetyDegreesRotation, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(hundredEightyDegreesRotation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(twoHundredSeventyDegreesRotation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(rotationSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addGroup(rotationPanelLayout.createSequentialGroup()
+                        .addComponent(rotationSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(rotationPanelLayout.createSequentialGroup()
+                        .addGroup(rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(twoHundredSeventyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(hundredEightyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(ninetyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
 
         scalePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Escala"));
@@ -1103,17 +1163,17 @@ public class MainFrame extends javax.swing.JFrame
         );
         scalePanelLayout.setVerticalGroup(
             scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(scalePanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scalePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scaleIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scaleOut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(scaleOut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(scaleIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        thresholdFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Umbral"));
+        thresholdFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Reto P10: Umbral"));
 
-        thresholdFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cuadratica.png"))); // NOI18N
+        thresholdFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/diagram.png"))); // NOI18N
         thresholdFunction.addActionListener(formListener);
 
         javax.swing.GroupLayout thresholdFunctionPanelLayout = new javax.swing.GroupLayout(thresholdFunctionPanel);
@@ -1121,37 +1181,15 @@ public class MainFrame extends javax.swing.JFrame
         thresholdFunctionPanelLayout.setHorizontalGroup(
             thresholdFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(thresholdFunctionPanelLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(27, 27, 27)
                 .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
         thresholdFunctionPanelLayout.setVerticalGroup(
             thresholdFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, thresholdFunctionPanelLayout.createSequentialGroup()
+            .addGroup(thresholdFunctionPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(thresholdFunction, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Negativo"));
-
-        negative.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/camera-roll.png"))); // NOI18N
-        negative.addActionListener(formListener);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(negative, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(negative, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1167,30 +1205,27 @@ public class MainFrame extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(contrastPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(rotationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scalePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(131, Short.MAX_VALUE))
+                .addGap(29, 29, 29))
         );
         toolsPanelLayout.setVerticalGroup(
             toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(toolsPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGap(0, 0, 0)
+                .addGroup(toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(brightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(filterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(rotationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(filterPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(brightPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
         toolBarImages.add(toolsPanel);
@@ -1204,11 +1239,11 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1522, Short.MAX_VALUE)
+            .addGap(0, 1525, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 774, Short.MAX_VALUE)
+            .addGap(0, 782, Short.MAX_VALUE)
         );
 
         containerPanel.add(desktop, java.awt.BorderLayout.CENTER);
@@ -1324,6 +1359,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == windowsEffect) {
                 MainFrame.this.windowsEffectActionPerformed(evt);
             }
+            else if (evt.getSource() == duplicate) {
+                MainFrame.this.duplicateActionPerformed(evt);
+            }
             else if (evt.getSource() == filterComboBox) {
                 MainFrame.this.filterComboBoxActionPerformed(evt);
             }
@@ -1335,6 +1373,9 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == darken) {
                 MainFrame.this.darkenActionPerformed(evt);
+            }
+            else if (evt.getSource() == negative) {
+                MainFrame.this.negativeActionPerformed(evt);
             }
             else if (evt.getSource() == ninetyDegreesRotation) {
                 MainFrame.this.ninetyDegreesRotationActionPerformed(evt);
@@ -1351,6 +1392,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == scaleOut) {
                 MainFrame.this.scaleOutActionPerformed(evt);
             }
+            else if (evt.getSource() == thresholdFunction) {
+                MainFrame.this.thresholdFunctionActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1366,14 +1410,14 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
             }
-            else if (evt.getSource() == thresholdFunction) {
-                MainFrame.this.thresholdFunctionActionPerformed(evt);
+            else if (evt.getSource() == quadraticFunction) {
+                MainFrame.this.quadraticFunctionActionPerformed(evt);
             }
-            else if (evt.getSource() == negative) {
-                MainFrame.this.negativeActionPerformed(evt);
+            else if (evt.getSource() == yellowBandCombination) {
+                MainFrame.this.yellowBandCombinationActionPerformed(evt);
             }
-            else if (evt.getSource() == duplicate) {
-                MainFrame.this.duplicateActionPerformed(evt);
+            else if (evt.getSource() == greenBandCombination) {
+                MainFrame.this.greenBandCombinationActionPerformed(evt);
             }
         }
 
@@ -1562,10 +1606,12 @@ public class MainFrame extends javax.swing.JFrame
 
     private void brightnessSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_brightnessSliderStateChanged
         if(internalFrame != null){
-            try { 
-                RescaleOp rescaleOp = new RescaleOp(1.0F, brightnessSlider.getValue(), null);
-                rescaleOp.filter(sourceImage, internalFrame.getCanvas2D().getImage(false));
-                internalFrame.getCanvas2D().repaint();
+            try {
+                if(sourceImage != null){
+                    RescaleOp rescaleOp = new RescaleOp(1.0F, brightnessSlider.getValue(), null);
+                    rescaleOp.filter(sourceImage, internalFrame.getCanvas2D().getImage(false));
+                    internalFrame.getCanvas2D().repaint();
+                }
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
             }
@@ -1606,33 +1652,30 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_filterComboBoxFocusLost
 
     private void contrastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_SFUNCION)
         );
+        sourceImage = null;
     }//GEN-LAST:event_contrastActionPerformed
 
     private void illuminateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_illuminateActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_ROOT)
         );
+        sourceImage = null;
     }//GEN-LAST:event_illuminateActionPerformed
 
     private void darkenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_darkenActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_POWER)
         );
+        sourceImage = null;
     }//GEN-LAST:event_darkenActionPerformed
 
     private void rotationSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rotationSliderFocusGained
@@ -1667,17 +1710,15 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_twoHundredSeventyDegreesRotationActionPerformed
 
     private void scaleInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleInActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.scaleImage(1.25f, 1.25f);
+        sourceImage = null;
     }//GEN-LAST:event_scaleInActionPerformed
 
     private void scaleOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleOutActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.scaleImage(0.75f, 0.75f);
+        sourceImage = null;
     }//GEN-LAST:event_scaleOutActionPerformed
 
     private void quadraticFunctionSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderFocusGained
@@ -1696,20 +1737,18 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged
 
     private void thresholdFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_thresholdFunctionActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.applyLookup(this.thresholdFunctionTable(127));
+        sourceImage = null;
     }//GEN-LAST:event_thresholdFunctionActionPerformed
 
     private void negativeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_negativeActionPerformed
-        if(tipOverFilters.isSelected())
-                this.tipOverShapes();
-        
+        this.imageEditorsFocusGained();
         this.applyLookup(
                 LookupTableProducer.createLookupTable(
                         LookupTableProducer.TYPE_NEGATIVE)
         );
+        sourceImage = null;
     }//GEN-LAST:event_negativeActionPerformed
 
     private void duplicateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_duplicateActionPerformed
@@ -1722,6 +1761,36 @@ public class MainFrame extends javax.swing.JFrame
         internalFrame.getCanvas2D().setImage(image);
         internalFrame.setTitle(duplicateTitle);
     }//GEN-LAST:event_duplicateActionPerformed
+
+    private void quadraticFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quadraticFunctionActionPerformed
+        this.imageEditorsFocusGained();
+        this.applyLookup(
+                this.quadraticFunctionTable(128)
+        );
+        sourceImage = null;
+    }//GEN-LAST:event_quadraticFunctionActionPerformed
+
+    private void yellowBandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yellowBandCombinationActionPerformed
+        this.imageEditorsFocusGained();
+        float[][] matrix = {
+            {0.0F, 0.5F, 0.5F},
+            {0.5F, 0.0F, 0.5F},
+            {0.5F, 0.5F, 0.0F}
+        };
+        this.applyCombineOp(matrix);
+        sourceImage = null;
+    }//GEN-LAST:event_yellowBandCombinationActionPerformed
+
+    private void greenBandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_greenBandCombinationActionPerformed
+        this.imageEditorsFocusGained();
+        float[][] matrix = {
+            {0.0F, 0.6F, 0.4F},
+            {0.0F, 1.0F, 0.0F},
+            {0.0F, 0.0F, 0.1F}
+        };
+        this.applyCombineOp(matrix);
+        sourceImage = null;
+    }//GEN-LAST:event_greenBandCombinationActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
@@ -1743,10 +1812,10 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JComboBox<String> filterComboBox;
     private javax.swing.JPanel filterPanel;
     private javax.swing.JToggleButton generalPath;
+    private javax.swing.JButton greenBandCombination;
     private javax.swing.JButton hundredEightyDegreesRotation;
     private javax.swing.JButton illuminate;
     private javax.swing.JMenu imageMenu;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -1763,6 +1832,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenu printMenu;
     private javax.swing.JMenuItem printerFileMenu;
     private javax.swing.JMenuItem printerMenu;
+    private javax.swing.JButton quadraticFunction;
     private javax.swing.JPanel quadraticFunctionPanel;
     private javax.swing.JSlider quadraticFunctionSlider;
     private javax.swing.JToggleButton rectangle;
@@ -1793,5 +1863,6 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenu viewMenu;
     private javax.swing.JSpinner widthStroke;
     private javax.swing.JToggleButton windowsEffect;
+    private javax.swing.JButton yellowBandCombination;
     // End of variables declaration//GEN-END:variables
 }

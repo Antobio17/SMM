@@ -515,30 +515,9 @@ public class MainFrame extends javax.swing.JFrame
             if(sourceImage != null){
                 try{
                     LookupOp lookupOP = new LookupOp(lookupTable, null);
-                    lookupOP.filter(sourceImage , sourceImage);
-                    internalFrame.getCanvas2D().setImage(sourceImage);
-                    internalFrame.getCanvas2D().repaint();
-                } catch(Exception e){
-                    System.err.println(e.getLocalizedMessage());
-                }
-            }
-        }
-    }
-    
-    /**
-     * Method to apply the LookupTable to the canvas' image of 
-     * the actual internal frame using a slider.
-     * 
-     * @param lookupTable
-     */
-    private void applyLookupFromSlider(LookupTable lookupTable)
-    {
-        if (internalFrame != null) {
-            if(sourceImage != null){
-                try{
-                    LookupOp lookupOP = new LookupOp(lookupTable, null);
-                    internalFrame.getCanvas2D().setImage(
-                            lookupOP.filter(sourceImage , null)
+                    lookupOP.filter(
+                            sourceImage, 
+                            internalFrame.getCanvas2D().getImage(false)
                     );
                     internalFrame.getCanvas2D().repaint();
                 } catch(Exception e){
@@ -1731,7 +1710,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionSliderFocusLost
 
     private void quadraticFunctionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderStateChanged
-        this.applyLookupFromSlider(
+        this.applyLookup(
                 this.quadraticFunctionTable(quadraticFunctionSlider.getValue())
         );
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged

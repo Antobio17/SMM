@@ -9,6 +9,8 @@ import sm.ajr.iu.Canvas2D;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -16,8 +18,11 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BandCombineOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ByteLookupTable;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
+import java.awt.image.DataBuffer;
 import java.awt.image.Kernel;
 import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
@@ -263,7 +268,7 @@ public class MainFrame extends javax.swing.JFrame
                 internalFrame.getCanvas2D().setImage(
                         scaleOp.filter(image, scaledImage));
 
-                internalFrame.getCanvas2D().repaint();
+                desktop.repaint();
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
             }
@@ -300,6 +305,7 @@ public class MainFrame extends javax.swing.JFrame
         iF.setVisible(true);
         
         initializeCanvas(iF);
+        internalFrame = iF;
     }
     
     /**
@@ -323,6 +329,7 @@ public class MainFrame extends javax.swing.JFrame
                 iF.setTitle(file.getName());
                 iF.setVisible(true);
                 initializeCanvas(iF);
+                internalFrame = iF;
                 // Dialog to set meassure of the canvas
                 throwDialogMeassureAndSetImage(
                         image.getWidth(), image.getHeight());
@@ -416,8 +423,6 @@ public class MainFrame extends javax.swing.JFrame
         iF.getCanvas2D().getImage(false).getGraphics().setColor(Color.WHITE);
         iF.getCanvas2D().getImage(false).getGraphics().fillRect(
                 0, 0, canvasWidth, canvasHeight);
-        
-        internalFrame = iF;
     }
     
     /**
@@ -519,7 +524,7 @@ public class MainFrame extends javax.swing.JFrame
                             sourceImage, 
                             internalFrame.getCanvas2D().getImage(false)
                     );
-                    internalFrame.getCanvas2D().repaint();
+                    desktop.repaint();
                 } catch(Exception e){
                     System.err.println(e.getLocalizedMessage());
                 }
@@ -544,7 +549,7 @@ public class MainFrame extends javax.swing.JFrame
                     AffineTransformOp atop;
                     atop = new AffineTransformOp(at,AffineTransformOp.TYPE_BILINEAR);
                     internalFrame.getCanvas2D().setImage(atop.filter(sourceImage, null));
-                    internalFrame.getCanvas2D().repaint();
+                    desktop.repaint();
                 }
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
@@ -566,12 +571,34 @@ public class MainFrame extends javax.swing.JFrame
                     BandCombineOp bandCombineop = new BandCombineOp(matrix, null);
                     bandCombineop.filter(sourceImage.getRaster(), sourceImage.getRaster());
                     internalFrame.getCanvas2D().setImage(sourceImage);
-                    internalFrame.getCanvas2D().repaint();
+                    desktop.repaint();
                 } catch(Exception e){
                     System.err.println(e.getLocalizedMessage());
                 }
             }
         }
+    }
+    
+    /**
+     * Method to get the image's band of a image.
+     * 
+     * @param image
+     * @param band
+     * @return 
+     */
+    private BufferedImage getImageBand(BufferedImage image, int band) {
+        ColorSpace colorSpace = new sm.image.color.GreyColorSpace();
+        ComponentColorModel colorModel = new ComponentColorModel(
+                colorSpace, false, false,Transparency.OPAQUE,DataBuffer.TYPE_BYTE
+        );
+        
+        int vband[] = {band};
+        WritableRaster bRaster = 
+                (WritableRaster)image.getRaster().createWritableChild(
+                        0, 0, image.getWidth(), image.getHeight(),0,0,vband
+                );
+        
+        return new BufferedImage(colorModel, bRaster, false, null);
     }
     
     /******************************** HANDLERS *******************************/
@@ -729,6 +756,9 @@ public class MainFrame extends javax.swing.JFrame
         scaleOut = new javax.swing.JButton();
         thresholdFunctionPanel = new javax.swing.JPanel();
         thresholdFunction = new javax.swing.JButton();
+        spaceColorPanel = new javax.swing.JPanel();
+        bandExtractor = new javax.swing.JButton();
+        colorSpaceComboBox = new javax.swing.JComboBox<>();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -917,7 +947,7 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(statusBarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1415, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1598, Short.MAX_VALUE)
                 .addComponent(statusBarVariable)
                 .addGap(21, 21, 21))
         );
@@ -1022,7 +1052,7 @@ public class MainFrame extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), "Otros"));
+        quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), " "));
 
         quadraticFunctionSlider.setMajorTickSpacing(50);
         quadraticFunctionSlider.setMaximum(255);
@@ -1171,6 +1201,35 @@ public class MainFrame extends javax.swing.JFrame
                 .addContainerGap())
         );
 
+        spaceColorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Color"));
+
+        bandExtractor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/bandas.png"))); // NOI18N
+        bandExtractor.addActionListener(formListener);
+
+        colorSpaceComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sRGB", "YCC", "Grey", "YCbCr" }));
+        colorSpaceComboBox.addActionListener(formListener);
+
+        javax.swing.GroupLayout spaceColorPanelLayout = new javax.swing.GroupLayout(spaceColorPanel);
+        spaceColorPanel.setLayout(spaceColorPanelLayout);
+        spaceColorPanelLayout.setHorizontalGroup(
+            spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(spaceColorPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(bandExtractor, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(colorSpaceComboBox, 0, 80, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        spaceColorPanelLayout.setVerticalGroup(
+            spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(spaceColorPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(colorSpaceComboBox)
+                    .addComponent(bandExtractor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout toolsPanelLayout = new javax.swing.GroupLayout(toolsPanel);
         toolsPanel.setLayout(toolsPanelLayout);
         toolsPanelLayout.setHorizontalGroup(
@@ -1183,27 +1242,27 @@ public class MainFrame extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(contrastPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(spaceColorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(rotationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scalePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
         toolsPanelLayout.setVerticalGroup(
             toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(toolsPanelLayout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(filterPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(brightPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+            .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(filterPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(brightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(spaceColorPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         toolBarImages.add(toolsPanel);
@@ -1217,11 +1276,11 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1525, Short.MAX_VALUE)
+            .addGap(0, 1708, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 782, Short.MAX_VALUE)
+            .addGap(0, 724, Short.MAX_VALUE)
         );
 
         containerPanel.add(desktop, java.awt.BorderLayout.CENTER);
@@ -1382,6 +1441,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == thresholdFunction) {
                 MainFrame.this.thresholdFunctionActionPerformed(evt);
             }
+            else if (evt.getSource() == bandExtractor) {
+                MainFrame.this.bandExtractorActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1396,6 +1458,9 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
+            }
+            else if (evt.getSource() == colorSpaceComboBox) {
+                MainFrame.this.colorSpaceComboBoxActionPerformed(evt);
             }
         }
 
@@ -1586,9 +1651,14 @@ public class MainFrame extends javax.swing.JFrame
         if(internalFrame != null){
             try {
                 if(sourceImage != null){
-                    RescaleOp rescaleOp = new RescaleOp(1.0F, brightnessSlider.getValue(), null);
-                    rescaleOp.filter(sourceImage, internalFrame.getCanvas2D().getImage(false));
-                    internalFrame.getCanvas2D().repaint();
+                    RescaleOp rescaleOp = new RescaleOp(
+                            1.0F, brightnessSlider.getValue(), null
+                    );
+                    rescaleOp.filter(
+                            sourceImage,
+                            internalFrame.getCanvas2D().getImage(false)
+                    );
+                    desktop.repaint();
                 }
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
@@ -1614,7 +1684,7 @@ public class MainFrame extends javax.swing.JFrame
                 ConvolveOp convolveOp = new ConvolveOp(kernel);
                 sourceImage = convolveOp.filter(internalFrame.getCanvas2D().getImage(false), null);
                 internalFrame.getCanvas2D().setImage(sourceImage);
-                internalFrame.getCanvas2D().repaint();
+                desktop.repaint();
             } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
             }
@@ -1764,16 +1834,90 @@ public class MainFrame extends javax.swing.JFrame
         float[][] matrix = {
             {0.0F, 0.6F, 0.4F},
             {0.0F, 1.0F, 0.0F},
-            {0.0F, 0.0F, 0.1F}
+            {0.0F, 0.0F, 1.0F}
         };
         this.applyCombineOp(matrix);
         sourceImage = null;
     }//GEN-LAST:event_greenBandCombinationActionPerformed
+
+    private void bandExtractorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bandExtractorActionPerformed
+        if(internalFrame != null){
+            BufferedImage image = 
+                    internalFrame.getCanvas2D().getImage(
+                            tipOverFilters.isSelected()
+                    );
+            String title = internalFrame.getTitle();
+            
+            if(image != null){
+                InternalFrame iF = null;
+                for(int i = 0; i < image.getRaster().getNumBands(); i++){
+                    BufferedImage bandImage = getImageBand(image, i);
+                    
+                    iF = new InternalFrame();
+                    desktop.add(iF);
+                    iF.setVisible(true);
+                    initializeCanvas(iF);
+                    iF.getCanvas2D().setImage(bandImage);
+                    iF.setTitle(title + " [banda " + i + "]");
+                }
+                internalFrame = iF;
+            }
+        }
+    }//GEN-LAST:event_bandExtractorActionPerformed
+
+    private void colorSpaceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorSpaceComboBoxActionPerformed
+        if(internalFrame != null){
+            String option = (String)colorSpaceComboBox.getSelectedItem();
+            sourceImage = internalFrame.getCanvas2D().getImage(tipOver.isSelected());
+
+            try{
+                ColorSpace colorSpace = null;
+                switch(option){
+                    case "sRGB":
+                        colorSpace = ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB);
+                        break;
+                    case "YCC":
+                        colorSpace = ColorSpace.getInstance(ColorSpace.CS_PYCC);
+                        break;
+                    case "Grey":
+                        colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+                        break;
+                    case "YCbCr":
+                        colorSpace = ColorSpace.getInstance(ColorSpace.TYPE_YCbCr);
+                        break;
+                }
+                
+                if(colorSpace.getType() != sourceImage.getColorModel().getColorSpace().getType()){
+                    ColorConvertOp op = new ColorConvertOp(colorSpace, null);
+                    BufferedImage image = op.filter(sourceImage, null);
+
+                    InternalFrame iF = new InternalFrame();
+                    desktop.add(iF);
+                    iF.setVisible(true);
+                    initializeCanvas(iF);
+                    iF.getCanvas2D().setImage(image);
+                    iF.setTitle(internalFrame.getTitle() + " [" + option + "]");
+                    internalFrame = iF;
+                } else {
+                    JOptionPane.showMessageDialog(
+                        null, 
+                        "La imagén ya es del tipo de espacio de color seleccionado: " 
+                            + option,
+                        "Información",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            }catch (IllegalArgumentException e) {
+                System.err.println(e.getLocalizedMessage());
+            }
+        }
+    }//GEN-LAST:event_colorSpaceComboBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
+    private javax.swing.JButton bandExtractor;
     private javax.swing.JPanel brightPanel;
     private javax.swing.JSlider brightnessSlider;
+    private javax.swing.JComboBox<String> colorSpaceComboBox;
     private javax.swing.JComboBox<Color> colors;
     private javax.swing.JPanel containerPanel;
     private javax.swing.JButton contrast;
@@ -1825,6 +1969,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator separator1;
     private javax.swing.JToolBar.Separator separator2;
     private javax.swing.JPopupMenu.Separator separatorFile;
+    private javax.swing.JPanel spaceColorPanel;
     private javax.swing.JPanel statusBar;
     private javax.swing.JCheckBoxMenuItem statusBarMenu;
     private javax.swing.JLabel statusBarTitle;

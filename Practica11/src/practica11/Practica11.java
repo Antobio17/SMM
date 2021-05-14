@@ -5,6 +5,8 @@
  */
 package practica11;
 
+import practica11.MainFrame;
+
 /**
  *
  * @author Antonio Jiménez Rodríguez

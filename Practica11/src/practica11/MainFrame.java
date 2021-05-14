@@ -520,9 +520,11 @@ public class MainFrame extends javax.swing.JFrame
             if(sourceImage != null){
                 try{
                     LookupOp lookupOP = new LookupOp(lookupTable, null);
-                    lookupOP.filter(
-                            sourceImage, 
-                            internalFrame.getCanvas2D().getImage(false)
+                    internalFrame.getCanvas2D().setImage(
+                            lookupOP.filter(
+                                sourceImage, 
+                                null
+                            )
                     );
                     desktop.repaint();
                 } catch(Exception e){
@@ -613,12 +615,14 @@ public class MainFrame extends javax.swing.JFrame
         @Override
         public void mouseMoved(MouseEvent e)
         {
-            setCoords(e.getPoint());
-            if(windowsEffect.isSelected()){
-                internalFrame.getCanvas2D().setWindowsEffectPosition(
-                        e.getPoint());
+            if(internalFrame != null){
+                setStatusBarText(e.getPoint());
+                if(windowsEffect.isSelected()){
+                    internalFrame.getCanvas2D().setWindowsEffectPosition(
+                            e.getPoint());
+                }
+                internalFrame.getCanvas2D().repaint();
             }
-            internalFrame.getCanvas2D().repaint();
         }
         
         /**
@@ -628,19 +632,39 @@ public class MainFrame extends javax.swing.JFrame
         @Override
         public void mouseDragged(MouseEvent e)
         {
-            setCoords(e.getPoint());
-            if(windowsEffect.isSelected()){
-                internalFrame.getCanvas2D().setWindowsEffectPosition(
-                        e.getPoint());
+            if(internalFrame != null){
+                setStatusBarText(e.getPoint());
+                if (windowsEffect.isSelected()) {
+                    internalFrame.getCanvas2D().setWindowsEffectPosition(
+                            e.getPoint());
+                }
+                internalFrame.getCanvas2D().repaint();
             }
-            internalFrame.getCanvas2D().repaint();
         }
         
-        private void setCoords(Point p)
+        private void setStatusBarText(Point p)
         {
             statusBarVariable.setText(
-                    "Coordenadas: ( " + (int)p.getX() + ", " 
-                            + (int)p.getY() + " ) ");
+                    "Coordenadas: ( " + (int)p.getX() + ", " +
+                    (int)p.getY() + " );"  
+            );
+            BufferedImage image = internalFrame.getCanvas2D().getImage(true);
+            if(p.getX() >= 0 && p.getX() < image.getWidth() &&
+                    p.getY() >= 0 && p.getY() < image.getHeight()){
+                Color pixelColor = new Color(
+                    image.getRGB((int)p.getX(), (int)p.getY()), true);
+                statusBarVariable.setText(
+                        statusBarVariable.getText() +
+                        "  RGB: ( " + pixelColor.getRed() +
+                        ", " + pixelColor.getGreen() + ", " + pixelColor.getBlue() +
+                        " )"
+                );
+            }else{
+                statusBarVariable.setText(
+                        statusBarVariable.getText() +
+                        "  RGB: Fuera de Imagen"
+                );
+            }           
         }
         
     }
@@ -1880,10 +1904,10 @@ public class MainFrame extends javax.swing.JFrame
                         colorSpace = ColorSpace.getInstance(ColorSpace.CS_PYCC);
                         break;
                     case "Grey":
-                        colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+                        colorSpace = new sm.image.color.GreyColorSpace();
                         break;
                     case "YCbCr":
-                        colorSpace = ColorSpace.getInstance(ColorSpace.TYPE_YCbCr);
+                        colorSpace = new sm.image.color.YCbCrColorSpace();
                         break;
                 }
                 

@@ -5,6 +5,7 @@
  */
 package practica11;
 
+import practica11.MainFrame;
 import sm.ajr.iu.Canvas2D;
 
 

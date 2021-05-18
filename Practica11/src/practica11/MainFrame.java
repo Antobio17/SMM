@@ -520,11 +520,9 @@ public class MainFrame extends javax.swing.JFrame
             if(sourceImage != null){
                 try{
                     LookupOp lookupOP = new LookupOp(lookupTable, null);
-                    internalFrame.getCanvas2D().setImage(
-                            lookupOP.filter(
-                                sourceImage, 
-                                null
-                            )
+                    lookupOP.filter(
+                        sourceImage, 
+                        internalFrame.getCanvas2D().getImage(false)
                     );
                     desktop.repaint();
                 } catch(Exception e){
@@ -770,6 +768,9 @@ public class MainFrame extends javax.swing.JFrame
         quadraticFunction = new javax.swing.JButton();
         yellowBandCombination = new javax.swing.JButton();
         greenBandCombination = new javax.swing.JButton();
+        tint = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        equalize = new javax.swing.JButton();
         rotationPanel = new javax.swing.JPanel();
         rotationSlider = new javax.swing.JSlider();
         ninetyDegreesRotation = new javax.swing.JButton();
@@ -971,7 +972,7 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(statusBarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1598, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1640, Short.MAX_VALUE)
                 .addComponent(statusBarVariable)
                 .addGap(21, 21, 21))
         );
@@ -1000,15 +1001,14 @@ public class MainFrame extends javax.swing.JFrame
             brightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(brightPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(brightnessSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(brightnessSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         brightPanelLayout.setVerticalGroup(
             brightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, brightPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(brightnessSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(brightnessSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Filtros"));
@@ -1029,24 +1029,27 @@ public class MainFrame extends javax.swing.JFrame
         );
         filterPanelLayout.setVerticalGroup(
             filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filterPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(filterComboBox)
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(filterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         contrastPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Contraste"));
 
         contrast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/contraste.png"))); // NOI18N
+        contrast.setToolTipText("Contraste");
         contrast.addActionListener(formListener);
 
         illuminate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/iluminar.png"))); // NOI18N
+        illuminate.setToolTipText("Iluminar");
         illuminate.addActionListener(formListener);
 
         darken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/oscurecer.png"))); // NOI18N
+        darken.setToolTipText("Oscurecer");
         darken.addActionListener(formListener);
 
-        negative.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/negative.png"))); // NOI18N
+        negative.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/contrast.png"))); // NOI18N
+        negative.setToolTipText("Negativo");
         negative.addActionListener(formListener);
 
         javax.swing.GroupLayout contrastPanelLayout = new javax.swing.GroupLayout(contrastPanel);
@@ -1067,13 +1070,12 @@ public class MainFrame extends javax.swing.JFrame
         contrastPanelLayout.setVerticalGroup(
             contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(contrastPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(negative, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(darken, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(illuminate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(contrast, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(contrast, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(illuminate, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(darken, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(negative, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), " "));
@@ -1088,13 +1090,27 @@ public class MainFrame extends javax.swing.JFrame
         quadraticFunctionSlider.addFocusListener(formListener);
 
         quadraticFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cuadratica.png"))); // NOI18N
+        quadraticFunction.setToolTipText("Cuadrática");
         quadraticFunction.addActionListener(formListener);
 
         yellowBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/combinar.png"))); // NOI18N
         yellowBandCombination.addActionListener(formListener);
 
-        greenBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/combinarGreen.png"))); // NOI18N
+        greenBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/paint-bucket.png"))); // NOI18N
+        greenBandCombination.setToolTipText("Enverdecer");
         greenBandCombination.addActionListener(formListener);
+
+        tint.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/tintar.png"))); // NOI18N
+        tint.setToolTipText("Tinte");
+        tint.addActionListener(formListener);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/sepia.png"))); // NOI18N
+        jButton1.setToolTipText("sepia");
+        jButton1.addActionListener(formListener);
+
+        equalize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ecualizar.png"))); // NOI18N
+        equalize.setToolTipText("Ecualizar");
+        equalize.addActionListener(formListener);
 
         javax.swing.GroupLayout quadraticFunctionPanelLayout = new javax.swing.GroupLayout(quadraticFunctionPanel);
         quadraticFunctionPanel.setLayout(quadraticFunctionPanelLayout);
@@ -1103,24 +1119,33 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(quadraticFunctionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(greenBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(greenBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(tint, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(equalize, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(53, Short.MAX_VALUE))
         );
         quadraticFunctionPanelLayout.setVerticalGroup(
             quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, quadraticFunctionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(yellowBandCombination, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(greenBandCombination, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(tint, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(greenBandCombination, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(equalize, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(35, 35, 35))
         );
 
         rotationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Rotación"));
@@ -1130,17 +1155,21 @@ public class MainFrame extends javax.swing.JFrame
         rotationSlider.setMinimum(-360);
         rotationSlider.setMinorTickSpacing(60);
         rotationSlider.setPaintTicks(true);
+        rotationSlider.setToolTipText("Aplicar rotación");
         rotationSlider.setValue(0);
         rotationSlider.addChangeListener(formListener);
         rotationSlider.addFocusListener(formListener);
 
         ninetyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion90.png"))); // NOI18N
+        ninetyDegreesRotation.setToolTipText("Rotar 90");
         ninetyDegreesRotation.addActionListener(formListener);
 
         hundredEightyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion180.png"))); // NOI18N
+        hundredEightyDegreesRotation.setToolTipText("Rotar 180");
         hundredEightyDegreesRotation.addActionListener(formListener);
 
         twoHundredSeventyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion270.png"))); // NOI18N
+        twoHundredSeventyDegreesRotation.setToolTipText("Rotar 270");
         twoHundredSeventyDegreesRotation.addActionListener(formListener);
 
         javax.swing.GroupLayout rotationPanelLayout = new javax.swing.GroupLayout(rotationPanel);
@@ -1161,25 +1190,22 @@ public class MainFrame extends javax.swing.JFrame
         rotationPanelLayout.setVerticalGroup(
             rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(rotationPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(rotationPanelLayout.createSequentialGroup()
-                        .addComponent(rotationSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(rotationPanelLayout.createSequentialGroup()
-                        .addGroup(rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(twoHundredSeventyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(hundredEightyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ninetyDegreesRotation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                    .addComponent(rotationSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ninetyDegreesRotation)
+                    .addComponent(hundredEightyDegreesRotation)
+                    .addComponent(twoHundredSeventyDegreesRotation))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         scalePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Escala"));
 
         scaleIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/aumentar.png"))); // NOI18N
+        scaleIn.setToolTipText("Aumentar escala");
         scaleIn.addActionListener(formListener);
 
         scaleOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/disminuir.png"))); // NOI18N
+        scaleOut.setToolTipText("Disminuir escala");
         scaleOut.addActionListener(formListener);
 
         javax.swing.GroupLayout scalePanelLayout = new javax.swing.GroupLayout(scalePanel);
@@ -1196,16 +1222,16 @@ public class MainFrame extends javax.swing.JFrame
         scalePanelLayout.setVerticalGroup(
             scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scalePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(scaleOut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scaleIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(scaleOut, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(scaleIn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         thresholdFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Reto P10: Umbral"));
 
         thresholdFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/diagram.png"))); // NOI18N
+        thresholdFunction.setToolTipText("Umbral");
         thresholdFunction.addActionListener(formListener);
 
         javax.swing.GroupLayout thresholdFunctionPanelLayout = new javax.swing.GroupLayout(thresholdFunctionPanel);
@@ -1219,18 +1245,19 @@ public class MainFrame extends javax.swing.JFrame
         );
         thresholdFunctionPanelLayout.setVerticalGroup(
             thresholdFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(thresholdFunctionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, thresholdFunctionPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         spaceColorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Color"));
 
         bandExtractor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/bandas.png"))); // NOI18N
+        bandExtractor.setToolTipText("Bandas");
         bandExtractor.addActionListener(formListener);
 
         colorSpaceComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sRGB", "YCC", "Grey", "YCbCr" }));
+        colorSpaceComboBox.setToolTipText("Espacio de color");
         colorSpaceComboBox.addActionListener(formListener);
 
         javax.swing.GroupLayout spaceColorPanelLayout = new javax.swing.GroupLayout(spaceColorPanel);
@@ -1247,11 +1274,10 @@ public class MainFrame extends javax.swing.JFrame
         spaceColorPanelLayout.setVerticalGroup(
             spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(spaceColorPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(colorSpaceComboBox)
-                    .addComponent(bandExtractor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(colorSpaceComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bandExtractor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         javax.swing.GroupLayout toolsPanelLayout = new javax.swing.GroupLayout(toolsPanel);
@@ -1275,18 +1301,21 @@ public class MainFrame extends javax.swing.JFrame
                 .addComponent(scalePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(57, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         toolsPanelLayout.setVerticalGroup(
             toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(filterPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(brightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(spaceColorPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, toolsPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(spaceColorPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(brightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(filterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         toolBarImages.add(toolsPanel);
@@ -1300,11 +1329,11 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1708, Short.MAX_VALUE)
+            .addGap(0, 1750, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 724, Short.MAX_VALUE)
+            .addGap(0, 600, Short.MAX_VALUE)
         );
 
         containerPanel.add(desktop, java.awt.BorderLayout.CENTER);
@@ -1468,6 +1497,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == bandExtractor) {
                 MainFrame.this.bandExtractorActionPerformed(evt);
             }
+            else if (evt.getSource() == colorSpaceComboBox) {
+                MainFrame.this.colorSpaceComboBoxActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1483,8 +1515,14 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
             }
-            else if (evt.getSource() == colorSpaceComboBox) {
-                MainFrame.this.colorSpaceComboBoxActionPerformed(evt);
+            else if (evt.getSource() == tint) {
+                MainFrame.this.tintActionPerformed(evt);
+            }
+            else if (evt.getSource() == jButton1) {
+                MainFrame.this.jButton1ActionPerformed(evt);
+            }
+            else if (evt.getSource() == equalize) {
+                MainFrame.this.equalizeActionPerformed(evt);
             }
         }
 
@@ -1830,7 +1868,15 @@ public class MainFrame extends javax.swing.JFrame
                 duplicateTitle = title.replace("." + extension, "") 
                 + "-copia." + extension;
         newCanvas();
-        internalFrame.getCanvas2D().setImage(image);
+        // Set a deep copy image to no modify both at the same time.
+        internalFrame.getCanvas2D().setImage(
+                new BufferedImage(
+                        image.getColorModel(),
+                        image.copyData(null),
+                        image.getColorModel().isAlphaPremultiplied(),
+                        null
+                )
+        );
         internalFrame.setTitle(duplicateTitle);
     }//GEN-LAST:event_duplicateActionPerformed
 
@@ -1935,6 +1981,18 @@ public class MainFrame extends javax.swing.JFrame
             }
         }
     }//GEN-LAST:event_colorSpaceComboBoxActionPerformed
+
+    private void tintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tintActionPerformed
+//        sm.image.TintOp();
+    }//GEN-LAST:event_tintActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+//        sm.image.SepiaOp();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void equalizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_equalizeActionPerformed
+//        sm.image.EqualizationOp();
+    }//GEN-LAST:event_equalizeActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
@@ -1953,6 +2011,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JButton duplicate;
     private javax.swing.JMenu editMenu;
     private javax.swing.JToggleButton ellipse;
+    private javax.swing.JButton equalize;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JToggleButton fill;
     private javax.swing.JComboBox<String> filterComboBox;
@@ -1962,6 +2021,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JButton hundredEightyDegreesRotation;
     private javax.swing.JButton illuminate;
     private javax.swing.JMenu imageMenu;
+    private javax.swing.JButton jButton1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -2000,6 +2060,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JLabel statusBarVariable;
     private javax.swing.JButton thresholdFunction;
     private javax.swing.JPanel thresholdFunctionPanel;
+    private javax.swing.JButton tint;
     private javax.swing.JButton tipOver;
     private javax.swing.JToggleButton tipOverFilters;
     private javax.swing.JToolBar toolBar;

@@ -7,6 +7,7 @@ package practica12;
 
 import java.awt.Color;
 import java.awt.Component;
+import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
@@ -14,12 +15,12 @@ import javax.swing.ListCellRenderer;
  *
  * @author Antonio Jiménez Rodríguez
  */
-public class ColorCellRender implements ListCellRenderer<Color>{
+public class IconCellRender implements ListCellRenderer<ImageIcon>{
 
     @Override
-    public Component getListCellRendererComponent(JList<? extends Color> list,
-            Color value, int index, boolean isSelected, boolean cellHasFocus) {
-        ColorPanel panel = new ColorPanel(value);
+    public Component getListCellRendererComponent(JList<? extends ImageIcon> list,
+            ImageIcon value, int index, boolean isSelected, boolean cellHasFocus) {
+        IconPanel panel = new IconPanel(value);
         return panel;
     }
     

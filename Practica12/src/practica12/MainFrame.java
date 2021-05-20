@@ -30,6 +30,7 @@ import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.InternalFrameAdapter;
@@ -127,6 +128,12 @@ public class MainFrame extends javax.swing.JFrame
     MouseMotionHandler mouseMotionListener = null;
     Color colorsArray[] = { Color.BLACK, Color.WHITE, Color.RED, Color.YELLOW,
         Color.BLUE, Color.GREEN };
+    ImageIcon icons[] = {
+        new ImageIcon(this.getClass().getClassLoader().getResource("icons/contraste.png")),
+        new ImageIcon(this.getClass().getClassLoader().getResource("icons/iluminar.png")),
+        new ImageIcon(this.getClass().getClassLoader().getResource("icons/oscurecer.png")),
+        new ImageIcon(this.getClass().getClassLoader().getResource("icons/negative.png"))
+    };
     
     /* Canvas measurements */
     int canvasWidth, canvasHeight;
@@ -154,6 +161,15 @@ public class MainFrame extends javax.swing.JFrame
         brightnessSlider.setMaximum(100);
         quadraticFunctionSlider.setValue(0);
         rotationSlider.setValue(0);
+        firstRotationLabel.setVisible(false);
+        secondRotationLabel.setVisible(false);
+        rotationSlider.setVisible(false);
+        tintSlider.setVisible(false);        
+        redHighlightSlider.setVisible(false);
+        posterizeSlider.setVisible(false);
+        quadraticFunctionSlider.setVisible(false);
+        System.out.println(icons[0]);
+        
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -470,7 +486,7 @@ public class MainFrame extends javax.swing.JFrame
      * Method that is activated when any controls' focus is gained.
      * 
      */
-    private void controlsFocusGained()
+    private void swingControlsFocusGained()
     {
         if(internalFrame != null){
             if(tipOverFilters.isSelected())
@@ -753,44 +769,44 @@ public class MainFrame extends javax.swing.JFrame
         windowsEffect = new javax.swing.JToggleButton();
         tipOverFilters = new javax.swing.JToggleButton();
         duplicate = new javax.swing.JButton();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
+        jLabel2 = new javax.swing.JLabel();
+        brightnessSlider = new javax.swing.JSlider();
+        jLabel3 = new javax.swing.JLabel();
+        contrastComboBox = new javax.swing.JComboBox<>(icons);
+        jSeparator5 = new javax.swing.JToolBar.Separator();
+        filterComboBox = new javax.swing.JComboBox<>();
+        jSeparator6 = new javax.swing.JToolBar.Separator();
+        rotationButton = new javax.swing.JButton();
+        firstRotationLabel = new javax.swing.JLabel();
+        rotationSlider = new javax.swing.JSlider();
+        secondRotationLabel = new javax.swing.JLabel();
+        scaleIn = new javax.swing.JButton();
+        scaleOut = new javax.swing.JButton();
+        jSeparator7 = new javax.swing.JToolBar.Separator();
+        quadraticFunctionButton = new javax.swing.JButton();
+        quadraticFunctionSlider = new javax.swing.JSlider();
+        bandCombination = new javax.swing.JButton();
+        greenBandCombination = new javax.swing.JButton();
+        tint = new javax.swing.JButton();
+        tintSlider = new javax.swing.JSlider();
+        sepia = new javax.swing.JButton();
+        equalization = new javax.swing.JButton();
+        redHighlight = new javax.swing.JButton();
+        redHighlightSlider = new javax.swing.JSlider();
+        posterizeButton = new javax.swing.JButton();
+        posterizeSlider = new javax.swing.JSlider();
+        jSeparator8 = new javax.swing.JToolBar.Separator();
+        bandExtractor = new javax.swing.JButton();
+        colorSpaceComboBox = new javax.swing.JComboBox<>();
+        jSeparator9 = new javax.swing.JToolBar.Separator();
+        jLabel7 = new javax.swing.JLabel();
+        challengesComboBox = new javax.swing.JComboBox<>();
+        jSeparator10 = new javax.swing.JToolBar.Separator();
         statusBar = new javax.swing.JPanel();
         statusBarTitle = new javax.swing.JLabel();
         statusBarVariable = new javax.swing.JLabel();
         containerPanel = new javax.swing.JPanel();
-        toolBarImages = new javax.swing.JToolBar();
-        toolsPanel = new javax.swing.JPanel();
-        brightPanel = new javax.swing.JPanel();
-        brightnessSlider = new javax.swing.JSlider();
-        filterPanel = new javax.swing.JPanel();
-        filterComboBox = new javax.swing.JComboBox<>();
-        contrastPanel = new javax.swing.JPanel();
-        contrast = new javax.swing.JButton();
-        illuminate = new javax.swing.JButton();
-        darken = new javax.swing.JButton();
-        negative = new javax.swing.JButton();
-        quadraticFunctionPanel = new javax.swing.JPanel();
-        quadraticFunctionSlider = new javax.swing.JSlider();
-        quadraticFunction = new javax.swing.JButton();
-        yellowBandCombination = new javax.swing.JButton();
-        greenBandCombination = new javax.swing.JButton();
-        tint = new javax.swing.JButton();
-        sepia = new javax.swing.JButton();
-        equalization = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        posterizeSlider = new javax.swing.JSlider();
-        rotationPanel = new javax.swing.JPanel();
-        rotationSlider = new javax.swing.JSlider();
-        ninetyDegreesRotation = new javax.swing.JButton();
-        hundredEightyDegreesRotation = new javax.swing.JButton();
-        twoHundredSeventyDegreesRotation = new javax.swing.JButton();
-        scalePanel = new javax.swing.JPanel();
-        scaleIn = new javax.swing.JButton();
-        scaleOut = new javax.swing.JButton();
-        thresholdFunctionPanel = new javax.swing.JPanel();
-        thresholdFunction = new javax.swing.JButton();
-        spaceColorPanel = new javax.swing.JPanel();
-        bandExtractor = new javax.swing.JButton();
-        colorSpaceComboBox = new javax.swing.JComboBox<>();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -807,6 +823,9 @@ public class MainFrame extends javax.swing.JFrame
         pasteMenu = new javax.swing.JMenuItem();
         imageMenu = new javax.swing.JMenu();
         newSizeImage = new javax.swing.JMenuItem();
+        jSeparator11 = new javax.swing.JPopupMenu.Separator();
+        tintItemMenu = new javax.swing.JMenuItem();
+        redHighlightItemMenu = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         statusBarMenu = new javax.swing.JCheckBoxMenuItem();
 
@@ -818,7 +837,7 @@ public class MainFrame extends javax.swing.JFrame
 
         toolBar.setRollover(true);
 
-        newCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/nuevo.png"))); // NOI18N
+        newCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-New.png"))); // NOI18N
         newCanvas.setToolTipText("Nuevo lienzo");
         newCanvas.setFocusable(false);
         newCanvas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -826,7 +845,7 @@ public class MainFrame extends javax.swing.JFrame
         newCanvas.addActionListener(formListener);
         toolBar.add(newCanvas);
 
-        openCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/abrir.png"))); // NOI18N
+        openCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Open.png"))); // NOI18N
         openCanvas.setToolTipText("Abrir lienzo");
         openCanvas.setFocusable(false);
         openCanvas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -834,7 +853,7 @@ public class MainFrame extends javax.swing.JFrame
         openCanvas.addActionListener(formListener);
         toolBar.add(openCanvas);
 
-        saveCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/guardar.png"))); // NOI18N
+        saveCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Save.png"))); // NOI18N
         saveCanvas.setToolTipText("Guardar lienzo");
         saveCanvas.setFocusable(false);
         saveCanvas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -843,7 +862,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(saveCanvas);
         toolBar.add(separator2);
 
-        generalPath.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/punto.png"))); // NOI18N
+        generalPath.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Pencil.png"))); // NOI18N
         generalPath.setToolTipText("Dibujar libre");
         generalPath.setFocusable(false);
         generalPath.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -851,7 +870,7 @@ public class MainFrame extends javax.swing.JFrame
         generalPath.addActionListener(formListener);
         toolBar.add(generalPath);
 
-        line.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/linea.png"))); // NOI18N
+        line.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Line.png"))); // NOI18N
         line.setToolTipText("Dibujar línea");
         line.setFocusable(false);
         line.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -860,7 +879,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(line);
         line.getAccessibleContext().setAccessibleDescription("Línea");
 
-        rectangle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rectangulo.png"))); // NOI18N
+        rectangle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Square.png"))); // NOI18N
         rectangle.setToolTipText("Dibujar rectángulo");
         rectangle.setFocusable(false);
         rectangle.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -869,7 +888,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(rectangle);
         rectangle.getAccessibleContext().setAccessibleDescription("Rectángulo");
 
-        ellipse.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/elipse.png"))); // NOI18N
+        ellipse.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Circle.png"))); // NOI18N
         ellipse.setToolTipText("Dibujar elipse");
         ellipse.setFocusable(false);
         ellipse.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -878,7 +897,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(ellipse);
         ellipse.getAccessibleContext().setAccessibleDescription("Elipse");
 
-        selector.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/seleccion.png"))); // NOI18N
+        selector.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Move.png"))); // NOI18N
         selector.setToolTipText("Mover figura");
         selector.setFocusable(false);
         selector.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -908,7 +927,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(widthStroke);
         widthStroke.getAccessibleContext().setAccessibleDescription("Grosor");
 
-        fill.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rellenar.png"))); // NOI18N
+        fill.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Fill.png"))); // NOI18N
         fill.setToolTipText("Rellenar figura");
         fill.setFocusable(false);
         fill.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -917,7 +936,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(fill);
         fill.getAccessibleContext().setAccessibleDescription("Relleno");
 
-        transparency.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/transparencia.png"))); // NOI18N
+        transparency.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Transparency.png"))); // NOI18N
         transparency.setToolTipText("Aplicar transparencia a la figura");
         transparency.setFocusable(false);
         transparency.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -926,16 +945,19 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(transparency);
         transparency.getAccessibleContext().setAccessibleDescription("Transparencia");
 
-        antialiasing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/alisar.png"))); // NOI18N
+        antialiasing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Antialiasing.png"))); // NOI18N
         antialiasing.setToolTipText("Alisar figuras");
         antialiasing.setFocusable(false);
         antialiasing.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        antialiasing.setMaximumSize(new java.awt.Dimension(25, 25));
+        antialiasing.setMinimumSize(new java.awt.Dimension(25, 25));
+        antialiasing.setPreferredSize(new java.awt.Dimension(25, 25));
         antialiasing.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         antialiasing.addActionListener(formListener);
         toolBar.add(antialiasing);
         antialiasing.getAccessibleContext().setAccessibleDescription("Alisar");
 
-        tipOver.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/download.png"))); // NOI18N
+        tipOver.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Download.png"))); // NOI18N
         tipOver.setToolTipText("Volcar figuras en la imagen");
         tipOver.setFocusable(false);
         tipOver.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -943,7 +965,7 @@ public class MainFrame extends javax.swing.JFrame
         tipOver.addActionListener(formListener);
         toolBar.add(tipOver);
 
-        windowsEffect.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/view.png"))); // NOI18N
+        windowsEffect.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-View.png"))); // NOI18N
         windowsEffect.setToolTipText("Efecto ventana");
         windowsEffect.setFocusable(false);
         windowsEffect.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -951,20 +973,213 @@ public class MainFrame extends javax.swing.JFrame
         windowsEffect.addActionListener(formListener);
         toolBar.add(windowsEffect);
 
-        tipOverFilters.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/volcar.png"))); // NOI18N
+        tipOverFilters.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Tipover.png"))); // NOI18N
         tipOverFilters.setToolTipText("Aplicar filtros a figuras");
         tipOverFilters.setFocusable(false);
         tipOverFilters.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         tipOverFilters.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolBar.add(tipOverFilters);
 
-        duplicate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/duplicate.png"))); // NOI18N
+        duplicate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Duplicate.png"))); // NOI18N
         duplicate.setToolTipText("Duplicar");
         duplicate.setFocusable(false);
         duplicate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         duplicate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         duplicate.addActionListener(formListener);
         toolBar.add(duplicate);
+        toolBar.add(jSeparator4);
+
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-BrightnessLow.png"))); // NOI18N
+        toolBar.add(jLabel2);
+
+        brightnessSlider.setMinimum(-100);
+        brightnessSlider.setToolTipText("Brillo");
+        brightnessSlider.setValue(0);
+        brightnessSlider.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        brightnessSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        brightnessSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        brightnessSlider.addChangeListener(formListener);
+        brightnessSlider.addFocusListener(formListener);
+        toolBar.add(brightnessSlider);
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-BrightnessHigh.png"))); // NOI18N
+        toolBar.add(jLabel3);
+
+        contrastComboBox.addActionListener(formListener);
+        toolBar.add(contrastComboBox);
+        toolBar.add(jSeparator5);
+
+        filterComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Media", "Suavizado", "Realce", "Fronteras", "Enb. Horizontal", "Enb. Diagonal", "Binomial", "Foco Intenso", "Foco", "Laplaciana", "Relieve", "SolbeX", "SolbeY", " " }));
+        filterComboBox.setToolTipText("Filtros");
+        filterComboBox.setMaximumSize(new java.awt.Dimension(120, 23));
+        filterComboBox.setMinimumSize(new java.awt.Dimension(120, 23));
+        filterComboBox.setPreferredSize(new java.awt.Dimension(120, 23));
+        filterComboBox.addFocusListener(formListener);
+        filterComboBox.addActionListener(formListener);
+        toolBar.add(filterComboBox);
+        toolBar.add(jSeparator6);
+
+        rotationButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Rotation.png"))); // NOI18N
+        rotationButton.setToolTipText("Mostrar/Ocultar rotación");
+        rotationButton.setFocusable(false);
+        rotationButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        rotationButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        rotationButton.addActionListener(formListener);
+        toolBar.add(rotationButton);
+
+        firstRotationLabel.setText("0");
+        toolBar.add(firstRotationLabel);
+
+        rotationSlider.setMajorTickSpacing(180);
+        rotationSlider.setMaximum(360);
+        rotationSlider.setMinorTickSpacing(60);
+        rotationSlider.setToolTipText("Aplicar rotación");
+        rotationSlider.setValue(0);
+        rotationSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        rotationSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        rotationSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        rotationSlider.addChangeListener(formListener);
+        rotationSlider.addFocusListener(formListener);
+        toolBar.add(rotationSlider);
+
+        secondRotationLabel.setText("360");
+        toolBar.add(secondRotationLabel);
+
+        scaleIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-ZoomIn.png"))); // NOI18N
+        scaleIn.setToolTipText("Aumentar escala");
+        scaleIn.addActionListener(formListener);
+        toolBar.add(scaleIn);
+
+        scaleOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-ZoomOut.png"))); // NOI18N
+        scaleOut.setToolTipText("Disminuir escala");
+        scaleOut.addActionListener(formListener);
+        toolBar.add(scaleOut);
+        toolBar.add(jSeparator7);
+
+        quadraticFunctionButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Quadratic.png"))); // NOI18N
+        quadraticFunctionButton.setToolTipText("Mostrar/Ocultar función Cuadrática");
+        quadraticFunctionButton.setMaximumSize(new java.awt.Dimension(25, 25));
+        quadraticFunctionButton.setMinimumSize(new java.awt.Dimension(25, 25));
+        quadraticFunctionButton.setPreferredSize(new java.awt.Dimension(25, 25));
+        quadraticFunctionButton.addActionListener(formListener);
+        toolBar.add(quadraticFunctionButton);
+
+        quadraticFunctionSlider.setMajorTickSpacing(50);
+        quadraticFunctionSlider.setMaximum(255);
+        quadraticFunctionSlider.setMinorTickSpacing(10);
+        quadraticFunctionSlider.setPaintTicks(true);
+        quadraticFunctionSlider.setToolTipText("Función Cuadrática");
+        quadraticFunctionSlider.setValue(0);
+        quadraticFunctionSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        quadraticFunctionSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        quadraticFunctionSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        quadraticFunctionSlider.addChangeListener(formListener);
+        quadraticFunctionSlider.addFocusListener(formListener);
+        toolBar.add(quadraticFunctionSlider);
+
+        bandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-BindCombine.png"))); // NOI18N
+        bandCombination.setToolTipText("Combinación de bandas");
+        bandCombination.setMaximumSize(new java.awt.Dimension(25, 25));
+        bandCombination.setMinimumSize(new java.awt.Dimension(25, 25));
+        bandCombination.setPreferredSize(new java.awt.Dimension(25, 25));
+        bandCombination.addActionListener(formListener);
+        toolBar.add(bandCombination);
+
+        greenBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/paint-bucket.png"))); // NOI18N
+        greenBandCombination.setToolTipText("Enverdecer");
+        greenBandCombination.setMaximumSize(new java.awt.Dimension(25, 25));
+        greenBandCombination.setMinimumSize(new java.awt.Dimension(25, 25));
+        greenBandCombination.setPreferredSize(new java.awt.Dimension(25, 25));
+        greenBandCombination.addActionListener(formListener);
+        toolBar.add(greenBandCombination);
+
+        tint.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Tint.png"))); // NOI18N
+        tint.setToolTipText("Mostrar/Ocultar tintado");
+        tint.addActionListener(formListener);
+        toolBar.add(tint);
+
+        tintSlider.setValue(0);
+        tintSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        tintSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        tintSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        tintSlider.addChangeListener(formListener);
+        tintSlider.addFocusListener(formListener);
+        toolBar.add(tintSlider);
+
+        sepia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Sepia.png"))); // NOI18N
+        sepia.setToolTipText("Sepia");
+        sepia.addActionListener(formListener);
+        toolBar.add(sepia);
+
+        equalization.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Equalize.png"))); // NOI18N
+        equalization.setToolTipText("Ecualizar");
+        equalization.addActionListener(formListener);
+        toolBar.add(equalization);
+
+        redHighlight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Red.png"))); // NOI18N
+        redHighlight.setToolTipText("Mostrar/Ocultar resalte tono rojo");
+        redHighlight.setMaximumSize(new java.awt.Dimension(25, 25));
+        redHighlight.setMinimumSize(new java.awt.Dimension(25, 25));
+        redHighlight.setPreferredSize(new java.awt.Dimension(25, 25));
+        redHighlight.addActionListener(formListener);
+        toolBar.add(redHighlight);
+
+        redHighlightSlider.setMaximum(256);
+        redHighlightSlider.setMinimum(-512);
+        redHighlightSlider.setValue(-512);
+        redHighlightSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        redHighlightSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        redHighlightSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        redHighlightSlider.addChangeListener(formListener);
+        redHighlightSlider.addFocusListener(formListener);
+        toolBar.add(redHighlightSlider);
+
+        posterizeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Posterize.png"))); // NOI18N
+        posterizeButton.setToolTipText("Mostrar/Ocultar posterizado");
+        posterizeButton.setFocusable(false);
+        posterizeButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        posterizeButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        posterizeButton.addActionListener(formListener);
+        toolBar.add(posterizeButton);
+
+        posterizeSlider.setMaximum(40);
+        posterizeSlider.setMinimum(2);
+        posterizeSlider.setToolTipText("Posterizar");
+        posterizeSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        posterizeSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        posterizeSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        posterizeSlider.addChangeListener(formListener);
+        posterizeSlider.addFocusListener(formListener);
+        toolBar.add(posterizeSlider);
+        toolBar.add(jSeparator8);
+
+        bandExtractor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Bands.png"))); // NOI18N
+        bandExtractor.setToolTipText("Extraer bandas");
+        bandExtractor.addActionListener(formListener);
+        toolBar.add(bandExtractor);
+
+        colorSpaceComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sRGB", "YCC", "Grey", "YCbCr" }));
+        colorSpaceComboBox.setToolTipText("Espacio de color");
+        colorSpaceComboBox.setMaximumSize(new java.awt.Dimension(70, 23));
+        colorSpaceComboBox.setMinimumSize(new java.awt.Dimension(70, 23));
+        colorSpaceComboBox.setPreferredSize(new java.awt.Dimension(70, 23));
+        colorSpaceComboBox.addActionListener(formListener);
+        toolBar.add(colorSpaceComboBox);
+        toolBar.add(jSeparator9);
+
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Challenges.png"))); // NOI18N
+        toolBar.add(jLabel7);
+
+        challengesComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Práctica 10: Umbral" }));
+        challengesComboBox.setToolTipText("Otros retos");
+        challengesComboBox.setMaximumSize(new java.awt.Dimension(160, 23));
+        challengesComboBox.setMinimumSize(new java.awt.Dimension(160, 23));
+        challengesComboBox.setName(""); // NOI18N
+        challengesComboBox.setPreferredSize(new java.awt.Dimension(160, 23));
+        challengesComboBox.addFocusListener(formListener);
+        challengesComboBox.addActionListener(formListener);
+        toolBar.add(challengesComboBox);
+        toolBar.add(jSeparator10);
 
         getContentPane().add(toolBar, java.awt.BorderLayout.PAGE_START);
 
@@ -979,7 +1194,7 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(statusBarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1716, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1724, Short.MAX_VALUE)
                 .addComponent(statusBarVariable)
                 .addGap(21, 21, 21))
         );
@@ -994,360 +1209,6 @@ public class MainFrame extends javax.swing.JFrame
 
         containerPanel.setLayout(new java.awt.BorderLayout());
 
-        toolsPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        brightPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Brillo"));
-
-        brightnessSlider.setMinimum(-100);
-        brightnessSlider.setToolTipText("Brillo");
-        brightnessSlider.setValue(0);
-        brightnessSlider.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        brightnessSlider.addChangeListener(formListener);
-        brightnessSlider.addFocusListener(formListener);
-
-        javax.swing.GroupLayout brightPanelLayout = new javax.swing.GroupLayout(brightPanel);
-        brightPanel.setLayout(brightPanelLayout);
-        brightPanelLayout.setHorizontalGroup(
-            brightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(brightPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(brightnessSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        brightPanelLayout.setVerticalGroup(
-            brightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, brightPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(brightnessSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Filtros"));
-
-        filterComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Media", "Suavizado", "Realce", "Fronteras", "Enborronamiento Horizontal", "Enborronamiento Diagonal", "Binomial", "Foco Intenso", "Foco", "Laplaciana", "Relieve", "SolbeX", "SolbeY", " " }));
-        filterComboBox.setToolTipText("Filtros");
-        filterComboBox.addFocusListener(formListener);
-        filterComboBox.addActionListener(formListener);
-
-        javax.swing.GroupLayout filterPanelLayout = new javax.swing.GroupLayout(filterPanel);
-        filterPanel.setLayout(filterPanelLayout);
-        filterPanelLayout.setHorizontalGroup(
-            filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filterPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(filterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        filterPanelLayout.setVerticalGroup(
-            filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(filterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        contrastPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Contraste"));
-
-        contrast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/contraste.png"))); // NOI18N
-        contrast.setToolTipText("Contraste");
-        contrast.addActionListener(formListener);
-
-        illuminate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/iluminar.png"))); // NOI18N
-        illuminate.setToolTipText("Iluminar");
-        illuminate.addActionListener(formListener);
-
-        darken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/oscurecer.png"))); // NOI18N
-        darken.setToolTipText("Oscurecer");
-        darken.addActionListener(formListener);
-
-        negative.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/contrast.png"))); // NOI18N
-        negative.setToolTipText("Negativo");
-        negative.addActionListener(formListener);
-
-        javax.swing.GroupLayout contrastPanelLayout = new javax.swing.GroupLayout(contrastPanel);
-        contrastPanel.setLayout(contrastPanelLayout);
-        contrastPanelLayout.setHorizontalGroup(
-            contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(contrastPanelLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addComponent(contrast, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(illuminate, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(darken, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(negative, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        contrastPanelLayout.setVerticalGroup(
-            contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(contrastPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(contrastPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(contrast, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(illuminate, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(darken, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(negative, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        quadraticFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(""), " "));
-
-        quadraticFunctionSlider.setMajorTickSpacing(50);
-        quadraticFunctionSlider.setMaximum(255);
-        quadraticFunctionSlider.setMinorTickSpacing(10);
-        quadraticFunctionSlider.setPaintTicks(true);
-        quadraticFunctionSlider.setToolTipText("Función Cuadrática");
-        quadraticFunctionSlider.setValue(0);
-        quadraticFunctionSlider.addChangeListener(formListener);
-        quadraticFunctionSlider.addFocusListener(formListener);
-
-        quadraticFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cuadratica.png"))); // NOI18N
-        quadraticFunction.setToolTipText("Cuadrática");
-        quadraticFunction.addActionListener(formListener);
-
-        yellowBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/combinar.png"))); // NOI18N
-        yellowBandCombination.addActionListener(formListener);
-
-        greenBandCombination.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/paint-bucket.png"))); // NOI18N
-        greenBandCombination.setToolTipText("Enverdecer");
-        greenBandCombination.addActionListener(formListener);
-
-        tint.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/tintar.png"))); // NOI18N
-        tint.setToolTipText("Tinte");
-        tint.addActionListener(formListener);
-
-        sepia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/sepia.png"))); // NOI18N
-        sepia.setToolTipText("sepia");
-        sepia.addActionListener(formListener);
-
-        equalization.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ecualizar.png"))); // NOI18N
-        equalization.setToolTipText("Ecualizar");
-        equalization.addActionListener(formListener);
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rojo.png"))); // NOI18N
-        jButton2.setToolTipText("");
-        jButton2.addActionListener(formListener);
-
-        posterizeSlider.setMaximum(30);
-        posterizeSlider.setMinimum(1);
-        posterizeSlider.setValue(30);
-        posterizeSlider.addChangeListener(formListener);
-        posterizeSlider.addFocusListener(formListener);
-
-        javax.swing.GroupLayout quadraticFunctionPanelLayout = new javax.swing.GroupLayout(quadraticFunctionPanel);
-        quadraticFunctionPanel.setLayout(quadraticFunctionPanelLayout);
-        quadraticFunctionPanelLayout.setHorizontalGroup(
-            quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(quadraticFunctionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(greenBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tint, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sepia, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(equalization, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(posterizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        quadraticFunctionPanelLayout.setVerticalGroup(
-            quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, quadraticFunctionPanelLayout.createSequentialGroup()
-                .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(posterizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(quadraticFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(yellowBandCombination, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(quadraticFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(quadraticFunctionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(sepia, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(tint, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(greenBandCombination, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(equalization, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                .addGap(43, 43, 43))
-        );
-
-        rotationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Rotación"));
-
-        rotationSlider.setMajorTickSpacing(180);
-        rotationSlider.setMaximum(360);
-        rotationSlider.setMinimum(-360);
-        rotationSlider.setMinorTickSpacing(60);
-        rotationSlider.setPaintTicks(true);
-        rotationSlider.setToolTipText("Aplicar rotación");
-        rotationSlider.setValue(0);
-        rotationSlider.addChangeListener(formListener);
-        rotationSlider.addFocusListener(formListener);
-
-        ninetyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion90.png"))); // NOI18N
-        ninetyDegreesRotation.setToolTipText("Rotar 90");
-        ninetyDegreesRotation.addActionListener(formListener);
-
-        hundredEightyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion180.png"))); // NOI18N
-        hundredEightyDegreesRotation.setToolTipText("Rotar 180");
-        hundredEightyDegreesRotation.addActionListener(formListener);
-
-        twoHundredSeventyDegreesRotation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/rotacion270.png"))); // NOI18N
-        twoHundredSeventyDegreesRotation.setToolTipText("Rotar 270");
-        twoHundredSeventyDegreesRotation.addActionListener(formListener);
-
-        javax.swing.GroupLayout rotationPanelLayout = new javax.swing.GroupLayout(rotationPanel);
-        rotationPanel.setLayout(rotationPanelLayout);
-        rotationPanelLayout.setHorizontalGroup(
-            rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, rotationPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(rotationSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ninetyDegreesRotation, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(hundredEightyDegreesRotation, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(twoHundredSeventyDegreesRotation, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        rotationPanelLayout.setVerticalGroup(
-            rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(rotationPanelLayout.createSequentialGroup()
-                .addGroup(rotationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rotationSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ninetyDegreesRotation)
-                    .addComponent(hundredEightyDegreesRotation)
-                    .addComponent(twoHundredSeventyDegreesRotation))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        scalePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Escala"));
-
-        scaleIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/aumentar.png"))); // NOI18N
-        scaleIn.setToolTipText("Aumentar escala");
-        scaleIn.addActionListener(formListener);
-
-        scaleOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/disminuir.png"))); // NOI18N
-        scaleOut.setToolTipText("Disminuir escala");
-        scaleOut.addActionListener(formListener);
-
-        javax.swing.GroupLayout scalePanelLayout = new javax.swing.GroupLayout(scalePanel);
-        scalePanel.setLayout(scalePanelLayout);
-        scalePanelLayout.setHorizontalGroup(
-            scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(scalePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scaleIn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scaleOut, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        scalePanelLayout.setVerticalGroup(
-            scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scalePanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(scalePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(scaleOut, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scaleIn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-
-        thresholdFunctionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Reto P10: Umbral"));
-
-        thresholdFunction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/diagram.png"))); // NOI18N
-        thresholdFunction.setToolTipText("Umbral");
-        thresholdFunction.addActionListener(formListener);
-
-        javax.swing.GroupLayout thresholdFunctionPanelLayout = new javax.swing.GroupLayout(thresholdFunctionPanel);
-        thresholdFunctionPanel.setLayout(thresholdFunctionPanelLayout);
-        thresholdFunctionPanelLayout.setHorizontalGroup(
-            thresholdFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(thresholdFunctionPanelLayout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
-        );
-        thresholdFunctionPanelLayout.setVerticalGroup(
-            thresholdFunctionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, thresholdFunctionPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(thresholdFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        spaceColorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Color"));
-
-        bandExtractor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/bandas.png"))); // NOI18N
-        bandExtractor.setToolTipText("Bandas");
-        bandExtractor.addActionListener(formListener);
-
-        colorSpaceComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sRGB", "YCC", "Grey", "YCbCr" }));
-        colorSpaceComboBox.setToolTipText("Espacio de color");
-        colorSpaceComboBox.addActionListener(formListener);
-
-        javax.swing.GroupLayout spaceColorPanelLayout = new javax.swing.GroupLayout(spaceColorPanel);
-        spaceColorPanel.setLayout(spaceColorPanelLayout);
-        spaceColorPanelLayout.setHorizontalGroup(
-            spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(spaceColorPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(bandExtractor, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(colorSpaceComboBox, 0, 80, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        spaceColorPanelLayout.setVerticalGroup(
-            spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(spaceColorPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(spaceColorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(colorSpaceComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bandExtractor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        javax.swing.GroupLayout toolsPanelLayout = new javax.swing.GroupLayout(toolsPanel);
-        toolsPanel.setLayout(toolsPanelLayout);
-        toolsPanelLayout.setHorizontalGroup(
-            toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(toolsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(brightPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contrastPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spaceColorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(rotationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scalePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        toolsPanelLayout.setVerticalGroup(
-            toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, toolsPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(thresholdFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scalePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(rotationPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(spaceColorPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(quadraticFunctionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(contrastPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(brightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(filterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-
-        toolBarImages.add(toolsPanel);
-
-        containerPanel.add(toolBarImages, java.awt.BorderLayout.SOUTH);
-
         desktop.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         desktop.setPreferredSize(new java.awt.Dimension(800, 600));
 
@@ -1355,11 +1216,11 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1826, Short.MAX_VALUE)
+            .addGap(0, 1834, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 600, Short.MAX_VALUE)
+            .addGap(0, 656, Short.MAX_VALUE)
         );
 
         containerPanel.add(desktop, java.awt.BorderLayout.CENTER);
@@ -1411,6 +1272,15 @@ public class MainFrame extends javax.swing.JFrame
         newSizeImage.setText("Tamaño nueva imagen");
         newSizeImage.addActionListener(formListener);
         imageMenu.add(newSizeImage);
+        imageMenu.add(jSeparator11);
+
+        tintItemMenu.setText("Tintar imagen");
+        tintItemMenu.addActionListener(formListener);
+        imageMenu.add(tintItemMenu);
+
+        redHighlightItemMenu.setText("Resaltar tonos rojos de la imagen");
+        redHighlightItemMenu.addActionListener(formListener);
+        imageMenu.add(redHighlightItemMenu);
 
         menu.add(imageMenu);
 
@@ -1481,23 +1351,20 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == filterComboBox) {
                 MainFrame.this.filterComboBoxActionPerformed(evt);
             }
-            else if (evt.getSource() == contrast) {
-                MainFrame.this.contrastActionPerformed(evt);
+            else if (evt.getSource() == rotationButton) {
+                MainFrame.this.rotationButtonActionPerformed(evt);
             }
-            else if (evt.getSource() == illuminate) {
-                MainFrame.this.illuminateActionPerformed(evt);
+            else if (evt.getSource() == scaleIn) {
+                MainFrame.this.scaleInActionPerformed(evt);
             }
-            else if (evt.getSource() == darken) {
-                MainFrame.this.darkenActionPerformed(evt);
+            else if (evt.getSource() == scaleOut) {
+                MainFrame.this.scaleOutActionPerformed(evt);
             }
-            else if (evt.getSource() == negative) {
-                MainFrame.this.negativeActionPerformed(evt);
+            else if (evt.getSource() == quadraticFunctionButton) {
+                MainFrame.this.quadraticFunctionButtonActionPerformed(evt);
             }
-            else if (evt.getSource() == quadraticFunction) {
-                MainFrame.this.quadraticFunctionActionPerformed(evt);
-            }
-            else if (evt.getSource() == yellowBandCombination) {
-                MainFrame.this.yellowBandCombinationActionPerformed(evt);
+            else if (evt.getSource() == bandCombination) {
+                MainFrame.this.bandCombinationActionPerformed(evt);
             }
             else if (evt.getSource() == greenBandCombination) {
                 MainFrame.this.greenBandCombinationActionPerformed(evt);
@@ -1511,29 +1378,20 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == equalization) {
                 MainFrame.this.equalizationActionPerformed(evt);
             }
-            else if (evt.getSource() == ninetyDegreesRotation) {
-                MainFrame.this.ninetyDegreesRotationActionPerformed(evt);
+            else if (evt.getSource() == redHighlight) {
+                MainFrame.this.redHighlightActionPerformed(evt);
             }
-            else if (evt.getSource() == hundredEightyDegreesRotation) {
-                MainFrame.this.hundredEightyDegreesRotationActionPerformed(evt);
-            }
-            else if (evt.getSource() == twoHundredSeventyDegreesRotation) {
-                MainFrame.this.twoHundredSeventyDegreesRotationActionPerformed(evt);
-            }
-            else if (evt.getSource() == scaleIn) {
-                MainFrame.this.scaleInActionPerformed(evt);
-            }
-            else if (evt.getSource() == scaleOut) {
-                MainFrame.this.scaleOutActionPerformed(evt);
-            }
-            else if (evt.getSource() == thresholdFunction) {
-                MainFrame.this.thresholdFunctionActionPerformed(evt);
+            else if (evt.getSource() == posterizeButton) {
+                MainFrame.this.posterizeButtonActionPerformed(evt);
             }
             else if (evt.getSource() == bandExtractor) {
                 MainFrame.this.bandExtractorActionPerformed(evt);
             }
             else if (evt.getSource() == colorSpaceComboBox) {
                 MainFrame.this.colorSpaceComboBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == challengesComboBox) {
+                MainFrame.this.challengesComboBoxActionPerformed(evt);
             }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
@@ -1547,11 +1405,17 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == newSizeImage) {
                 MainFrame.this.newSizeImageActionPerformed(evt);
             }
+            else if (evt.getSource() == tintItemMenu) {
+                MainFrame.this.tintItemMenuActionPerformed(evt);
+            }
+            else if (evt.getSource() == redHighlightItemMenu) {
+                MainFrame.this.redHighlightItemMenuActionPerformed(evt);
+            }
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
             }
-            else if (evt.getSource() == jButton2) {
-                MainFrame.this.jButton2ActionPerformed(evt);
+            else if (evt.getSource() == contrastComboBox) {
+                MainFrame.this.contrastComboBoxActionPerformed(evt);
             }
         }
 
@@ -1562,14 +1426,23 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == filterComboBox) {
                 MainFrame.this.filterComboBoxFocusGained(evt);
             }
-            else if (evt.getSource() == quadraticFunctionSlider) {
-                MainFrame.this.quadraticFunctionSliderFocusGained(evt);
-            }
             else if (evt.getSource() == rotationSlider) {
                 MainFrame.this.rotationSliderFocusGained(evt);
             }
+            else if (evt.getSource() == quadraticFunctionSlider) {
+                MainFrame.this.quadraticFunctionSliderFocusGained(evt);
+            }
+            else if (evt.getSource() == tintSlider) {
+                MainFrame.this.tintSliderFocusGained(evt);
+            }
+            else if (evt.getSource() == redHighlightSlider) {
+                MainFrame.this.redHighlightSliderFocusGained(evt);
+            }
             else if (evt.getSource() == posterizeSlider) {
                 MainFrame.this.posterizeSliderFocusGained(evt);
+            }
+            else if (evt.getSource() == challengesComboBox) {
+                MainFrame.this.challengesComboBoxFocusGained(evt);
             }
         }
 
@@ -1580,14 +1453,23 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == filterComboBox) {
                 MainFrame.this.filterComboBoxFocusLost(evt);
             }
-            else if (evt.getSource() == quadraticFunctionSlider) {
-                MainFrame.this.quadraticFunctionSliderFocusLost(evt);
-            }
             else if (evt.getSource() == rotationSlider) {
                 MainFrame.this.rotationSliderFocusLost(evt);
             }
+            else if (evt.getSource() == quadraticFunctionSlider) {
+                MainFrame.this.quadraticFunctionSliderFocusLost(evt);
+            }
+            else if (evt.getSource() == tintSlider) {
+                MainFrame.this.tintSliderFocusLost(evt);
+            }
+            else if (evt.getSource() == redHighlightSlider) {
+                MainFrame.this.redHighlightSliderFocusLost(evt);
+            }
             else if (evt.getSource() == posterizeSlider) {
                 MainFrame.this.posterizeSliderFocusLost(evt);
+            }
+            else if (evt.getSource() == challengesComboBox) {
+                MainFrame.this.challengesComboBoxFocusLost(evt);
             }
         }
 
@@ -1598,11 +1480,17 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == brightnessSlider) {
                 MainFrame.this.brightnessSliderStateChanged(evt);
             }
+            else if (evt.getSource() == rotationSlider) {
+                MainFrame.this.rotationSliderStateChanged(evt);
+            }
             else if (evt.getSource() == quadraticFunctionSlider) {
                 MainFrame.this.quadraticFunctionSliderStateChanged(evt);
             }
-            else if (evt.getSource() == rotationSlider) {
-                MainFrame.this.rotationSliderStateChanged(evt);
+            else if (evt.getSource() == tintSlider) {
+                MainFrame.this.tintSliderStateChanged(evt);
+            }
+            else if (evt.getSource() == redHighlightSlider) {
+                MainFrame.this.redHighlightSliderStateChanged(evt);
             }
             else if (evt.getSource() == posterizeSlider) {
                 MainFrame.this.posterizeSliderStateChanged(evt);
@@ -1777,7 +1665,7 @@ public class MainFrame extends javax.swing.JFrame
     private void brightnessSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_brightnessSliderFocusGained
         if(tipOverFilters.isSelected())
             tipOverShapes();
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
     }//GEN-LAST:event_brightnessSliderFocusGained
 
     private void brightnessSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_brightnessSliderFocusLost
@@ -1800,42 +1688,15 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_filterComboBoxActionPerformed
 
     private void filterComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_filterComboBoxFocusGained
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
     }//GEN-LAST:event_filterComboBoxFocusGained
 
     private void filterComboBoxFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_filterComboBoxFocusLost
         sourceImage = null;
     }//GEN-LAST:event_filterComboBoxFocusLost
 
-    private void contrastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(
-                LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_SFUNCION)
-        );
-        sourceImage = null;
-    }//GEN-LAST:event_contrastActionPerformed
-
-    private void illuminateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_illuminateActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(
-                LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_ROOT)
-        );
-        sourceImage = null;
-    }//GEN-LAST:event_illuminateActionPerformed
-
-    private void darkenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_darkenActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(
-                LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_POWER)
-        );
-        sourceImage = null;
-    }//GEN-LAST:event_darkenActionPerformed
-
     private void rotationSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rotationSliderFocusGained
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
     }//GEN-LAST:event_rotationSliderFocusGained
 
     private void rotationSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_rotationSliderStateChanged
@@ -1847,38 +1708,20 @@ public class MainFrame extends javax.swing.JFrame
         rotationSlider.setValue(0);
     }//GEN-LAST:event_rotationSliderFocusLost
 
-    private void ninetyDegreesRotationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ninetyDegreesRotationActionPerformed
-        this.controlsFocusGained();
-        this.applyRotation(90);
-        sourceImage = null;
-    }//GEN-LAST:event_ninetyDegreesRotationActionPerformed
-
-    private void hundredEightyDegreesRotationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hundredEightyDegreesRotationActionPerformed
-        this.controlsFocusGained();
-        this.applyRotation(180);
-        sourceImage = null;
-    }//GEN-LAST:event_hundredEightyDegreesRotationActionPerformed
-
-    private void twoHundredSeventyDegreesRotationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_twoHundredSeventyDegreesRotationActionPerformed
-        this.controlsFocusGained();
-        this.applyRotation(270);
-        sourceImage = null;
-    }//GEN-LAST:event_twoHundredSeventyDegreesRotationActionPerformed
-
     private void scaleInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleInActionPerformed
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
         this.scaleImage(1.25f, 1.25f);
         sourceImage = null;
     }//GEN-LAST:event_scaleInActionPerformed
 
     private void scaleOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleOutActionPerformed
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
         this.scaleImage(0.75f, 0.75f);
         sourceImage = null;
     }//GEN-LAST:event_scaleOutActionPerformed
 
     private void quadraticFunctionSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderFocusGained
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
     }//GEN-LAST:event_quadraticFunctionSliderFocusGained
 
     private void quadraticFunctionSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderFocusLost
@@ -1892,50 +1735,33 @@ public class MainFrame extends javax.swing.JFrame
         );
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged
 
-    private void thresholdFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_thresholdFunctionActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(this.thresholdFunctionTable(127));
-        sourceImage = null;
-    }//GEN-LAST:event_thresholdFunctionActionPerformed
-
-    private void negativeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_negativeActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(
-                LookupTableProducer.createLookupTable(
-                        LookupTableProducer.TYPE_NEGATIVE)
-        );
-        sourceImage = null;
-    }//GEN-LAST:event_negativeActionPerformed
-
     private void duplicateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_duplicateActionPerformed
-        BufferedImage image = internalFrame.getCanvas2D().getImage(false);
-        String title = internalFrame.getTitle(),
-                extension = getExtension(title),
-                duplicateTitle = title.replace("." + extension, "") 
-                + "-copia." + extension;
-        newCanvas();
-        // Set a deep copy image to no modify both at the same time.
-        internalFrame.getCanvas2D().setImage(
-                new BufferedImage(
-                        image.getColorModel(),
-                        image.copyData(null),
-                        image.getColorModel().isAlphaPremultiplied(),
-                        null
-                )
-        );
-        internalFrame.setTitle(duplicateTitle);
+        if(internalFrame != null){
+            BufferedImage image = internalFrame.getCanvas2D().getImage(false);
+            String title = internalFrame.getTitle(),
+                    extension = getExtension(title),
+                    duplicateTitle = title.replace("." + extension, "") 
+                    + "-copia." + extension;
+            newCanvas();
+            // Set a deep copy image to no modify both at the same time.
+            internalFrame.getCanvas2D().setImage(
+                    new BufferedImage(
+                            image.getColorModel(),
+                            image.copyData(null),
+                            image.getColorModel().isAlphaPremultiplied(),
+                            null
+                    )
+            );
+            internalFrame.setTitle(duplicateTitle);
+        }
     }//GEN-LAST:event_duplicateActionPerformed
 
-    private void quadraticFunctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quadraticFunctionActionPerformed
-        this.controlsFocusGained();
-        this.applyLookup(
-                this.quadraticFunctionTable(128)
-        );
-        sourceImage = null;
-    }//GEN-LAST:event_quadraticFunctionActionPerformed
+    private void quadraticFunctionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quadraticFunctionButtonActionPerformed
+        quadraticFunctionSlider.setVisible(!quadraticFunctionSlider.isVisible());
+    }//GEN-LAST:event_quadraticFunctionButtonActionPerformed
 
-    private void yellowBandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yellowBandCombinationActionPerformed
-        this.controlsFocusGained();
+    private void bandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bandCombinationActionPerformed
+        this.swingControlsFocusGained();
         float[][] matrix = {
             {0.0F, 0.5F, 0.5F},
             {0.5F, 0.0F, 0.5F},
@@ -1943,10 +1769,10 @@ public class MainFrame extends javax.swing.JFrame
         };
         this.applyCombineOp(matrix);
         sourceImage = null;
-    }//GEN-LAST:event_yellowBandCombinationActionPerformed
+    }//GEN-LAST:event_bandCombinationActionPerformed
 
     private void greenBandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_greenBandCombinationActionPerformed
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
         float[][] matrix = {
             {0.0F, 0.6F, 0.4F},
             {0.0F, 1.0F, 0.0F},
@@ -2029,91 +1855,209 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_colorSpaceComboBoxActionPerformed
 
     private void tintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tintActionPerformed
-        this.controlsFocusGained();
-        TintOp tintOp = new sm.image.TintOp(
-                (Color)colors.getSelectedItem(), 0.5f
-        );
-        tintOp.filter(
-                sourceImage, 
-                internalFrame.getCanvas2D().getImage(false)
-        );
-        sourceImage = null;
-        desktop.repaint();
-// llamar al filter correspondiente;
-
-
-//Craer nuestro OP del rojo
-// REDOP
-
-
-// Slider entre 0 y 255 que indica el numero de niveles para representar los colores
-// posterizacionOP
-
-// reto nuevo operador propio
+        tintSlider.setVisible(!tintSlider.isVisible());
     }//GEN-LAST:event_tintActionPerformed
 
     private void sepiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sepiaActionPerformed
-        this.controlsFocusGained();
-        SepiaOp sepiaOp = new sm.image.SepiaOp();
-        sepiaOp.filter(
-                sourceImage,
-                internalFrame.getCanvas2D().getImage(false)
-        );
-        sourceImage = null;
-        desktop.repaint();
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            SepiaOp sepiaOp = new sm.image.SepiaOp();
+            sepiaOp.filter(
+                    sourceImage,
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            sourceImage = null;
+            desktop.repaint();
+        }
     }//GEN-LAST:event_sepiaActionPerformed
 
     private void equalizationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_equalizationActionPerformed
-        this.controlsFocusGained();
-        EqualizationOp equalizationOp = new sm.image.EqualizationOp();
-        equalizationOp.filter(
-                sourceImage, internalFrame.getCanvas2D().getImage(false)
-        );
-        sourceImage = null;
-        desktop.repaint();
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            EqualizationOp equalizationOp = new sm.image.EqualizationOp();
+            equalizationOp.filter(
+                    sourceImage, internalFrame.getCanvas2D().getImage(false)
+            );
+            sourceImage = null;
+            desktop.repaint();
+        }
     }//GEN-LAST:event_equalizationActionPerformed
 
     private void posterizeSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_posterizeSliderFocusGained
-        this.controlsFocusGained();
+        this.swingControlsFocusGained();
     }//GEN-LAST:event_posterizeSliderFocusGained
 
     private void posterizeSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_posterizeSliderFocusLost
         sourceImage = null;
+        posterizeSlider.setValue(40);
     }//GEN-LAST:event_posterizeSliderFocusLost
 
     private void posterizeSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_posterizeSliderStateChanged
-        PosterizeOp posterizeOp = new PosterizeOp(posterizeSlider.getValue());
-        posterizeOp.filter(
-                sourceImage, 
-                internalFrame.getCanvas2D().getImage(false)
-        );
-        desktop.repaint();
+        if(sourceImage != null){
+            PosterizeOp posterizeOp = new PosterizeOp(posterizeSlider.getValue());
+            posterizeOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            desktop.repaint();
+        }
     }//GEN-LAST:event_posterizeSliderStateChanged
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        this.controlsFocusGained();
-        RedOp redOp = new RedOp(240);
-        redOp.filter(
-                sourceImage, 
-                internalFrame.getCanvas2D().getImage(false)
-        );
+    private void redHighlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redHighlightActionPerformed
+        boolean action = !redHighlightSlider.isVisible();
+        redHighlightSlider.setVisible(action);
+    }//GEN-LAST:event_redHighlightActionPerformed
+
+    private void challengesComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_challengesComboBoxActionPerformed
+        if(internalFrame != null){
+            String option = (String)challengesComboBox.getSelectedItem();
+
+            switch(option){
+                case "Práctica 10: Umbral":
+                    this.applyLookup(this.thresholdFunctionTable(127));
+                    break;
+            }
+        }   
+    }//GEN-LAST:event_challengesComboBoxActionPerformed
+
+    private void challengesComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_challengesComboBoxFocusGained
+        this.swingControlsFocusGained();
+    }//GEN-LAST:event_challengesComboBoxFocusGained
+
+    private void challengesComboBoxFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_challengesComboBoxFocusLost
         sourceImage = null;
-        desktop.repaint();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_challengesComboBoxFocusLost
+
+    private void rotationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rotationButtonActionPerformed
+        boolean action = !rotationSlider.isVisible();
+        firstRotationLabel.setVisible(action);
+        secondRotationLabel.setVisible(action);
+        rotationSlider.setVisible(action);
+    }//GEN-LAST:event_rotationButtonActionPerformed
+
+    private void tintItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tintItemMenuActionPerformed
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            TintOp tintOp = new sm.image.TintOp(
+                    (Color)colors.getSelectedItem(), 0.5f
+            );
+            tintOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            sourceImage = null;
+            desktop.repaint();
+        }
+    }//GEN-LAST:event_tintItemMenuActionPerformed
+
+    private void tintSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tintSliderFocusGained
+        this.swingControlsFocusGained();
+    }//GEN-LAST:event_tintSliderFocusGained
+
+    private void tintSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tintSliderFocusLost
+        sourceImage = null;
+        tintSlider.setValue(0);
+    }//GEN-LAST:event_tintSliderFocusLost
+
+    private void tintSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tintSliderStateChanged
+        if(sourceImage != null){
+            TintOp tintOp = new sm.image.TintOp(
+                    (Color)colors.getSelectedItem(),
+                    (float)(tintSlider.getValue()/100.0)
+            );
+            tintOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            desktop.repaint();
+        }
+    }//GEN-LAST:event_tintSliderStateChanged
+
+    private void redHighlightItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redHighlightItemMenuActionPerformed
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            RedOp redOp = new RedOp(240);
+            redOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            sourceImage = null;
+            desktop.repaint(); 
+        }
+    }//GEN-LAST:event_redHighlightItemMenuActionPerformed
+
+    private void redHighlightSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_redHighlightSliderFocusGained
+        this.swingControlsFocusGained();
+    }//GEN-LAST:event_redHighlightSliderFocusGained
+
+    private void redHighlightSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_redHighlightSliderFocusLost
+        sourceImage = null;
+        redHighlightSlider.setValue(-512);
+    }//GEN-LAST:event_redHighlightSliderFocusLost
+
+    private void redHighlightSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_redHighlightSliderStateChanged
+        if(sourceImage != null){
+            RedOp redOp = new RedOp(redHighlightSlider.getValue());
+            redOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            desktop.repaint(); 
+        }
+    }//GEN-LAST:event_redHighlightSliderStateChanged
+
+    private void posterizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_posterizeButtonActionPerformed
+        posterizeSlider.setVisible(!posterizeSlider.isVisible());
+    }//GEN-LAST:event_posterizeButtonActionPerformed
+
+    private void contrastComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastComboBoxActionPerformed
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            LookupTable lookupTable = null;
+            switch(contrastComboBox.getSelectedIndex()){
+                case 0:
+                    lookupTable = 
+                            LookupTableProducer.createLookupTable(
+                                    LookupTableProducer.TYPE_SFUNCION
+                            );
+                    break;
+                case 1:
+                    lookupTable =
+                            LookupTableProducer.createLookupTable(
+                                    LookupTableProducer.TYPE_ROOT
+                            );
+                    break;
+                case 2:
+                    lookupTable =
+                            LookupTableProducer.createLookupTable(
+                                    LookupTableProducer.TYPE_POWER
+                            );
+                    break;
+                case 3:
+                    lookupTable =
+                            LookupTableProducer.createLookupTable(
+                                    LookupTableProducer.TYPE_NEGATIVE
+                            );
+                    break;
+            }
+            if(lookupTable != null)
+                this.applyLookup(lookupTable);
+            sourceImage = null;
+        }
+    }//GEN-LAST:event_contrastComboBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
+    private javax.swing.JButton bandCombination;
     private javax.swing.JButton bandExtractor;
-    private javax.swing.JPanel brightPanel;
     private javax.swing.JSlider brightnessSlider;
+    private javax.swing.JComboBox<String> challengesComboBox;
     private javax.swing.JComboBox<String> colorSpaceComboBox;
     private javax.swing.JComboBox<Color> colors;
     private javax.swing.JPanel containerPanel;
-    private javax.swing.JButton contrast;
-    private javax.swing.JPanel contrastPanel;
+    private javax.swing.JComboBox<ImageIcon> contrastComboBox;
     private javax.swing.JMenuItem copyMenu;
     private javax.swing.JMenuItem cutMenu;
-    private javax.swing.JButton darken;
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JButton duplicate;
     private javax.swing.JMenu editMenu;
@@ -2122,64 +2066,68 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenu fileMenu;
     private javax.swing.JToggleButton fill;
     private javax.swing.JComboBox<String> filterComboBox;
-    private javax.swing.JPanel filterPanel;
+    private javax.swing.JLabel firstRotationLabel;
     private javax.swing.JToggleButton generalPath;
     private javax.swing.JButton greenBandCombination;
-    private javax.swing.JButton hundredEightyDegreesRotation;
-    private javax.swing.JButton illuminate;
     private javax.swing.JMenu imageMenu;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator10;
+    private javax.swing.JPopupMenu.Separator jSeparator11;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JToolBar.Separator jSeparator4;
+    private javax.swing.JToolBar.Separator jSeparator5;
+    private javax.swing.JToolBar.Separator jSeparator6;
+    private javax.swing.JToolBar.Separator jSeparator7;
+    private javax.swing.JToolBar.Separator jSeparator8;
+    private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JToggleButton line;
     private javax.swing.JMenuBar menu;
-    private javax.swing.JButton negative;
     private javax.swing.JButton newCanvas;
     private javax.swing.JMenuItem newMenu;
     private javax.swing.JMenuItem newSizeImage;
-    private javax.swing.JButton ninetyDegreesRotation;
     private javax.swing.JButton openCanvas;
     private javax.swing.JMenuItem openMenu;
     private javax.swing.JMenuItem pasteMenu;
+    private javax.swing.JButton posterizeButton;
     private javax.swing.JSlider posterizeSlider;
     private javax.swing.JMenu printMenu;
     private javax.swing.JMenuItem printerFileMenu;
     private javax.swing.JMenuItem printerMenu;
-    private javax.swing.JButton quadraticFunction;
-    private javax.swing.JPanel quadraticFunctionPanel;
+    private javax.swing.JButton quadraticFunctionButton;
     private javax.swing.JSlider quadraticFunctionSlider;
     private javax.swing.JToggleButton rectangle;
-    private javax.swing.JPanel rotationPanel;
+    private javax.swing.JButton redHighlight;
+    private javax.swing.JMenuItem redHighlightItemMenu;
+    private javax.swing.JSlider redHighlightSlider;
+    private javax.swing.JButton rotationButton;
     private javax.swing.JSlider rotationSlider;
     private javax.swing.JButton saveCanvas;
     private javax.swing.JMenuItem saveMenu;
     private javax.swing.JButton scaleIn;
     private javax.swing.JButton scaleOut;
-    private javax.swing.JPanel scalePanel;
+    private javax.swing.JLabel secondRotationLabel;
     private javax.swing.JToggleButton selector;
     private javax.swing.JToolBar.Separator separator1;
     private javax.swing.JToolBar.Separator separator2;
     private javax.swing.JPopupMenu.Separator separatorFile;
     private javax.swing.JButton sepia;
-    private javax.swing.JPanel spaceColorPanel;
     private javax.swing.JPanel statusBar;
     private javax.swing.JCheckBoxMenuItem statusBarMenu;
     private javax.swing.JLabel statusBarTitle;
     private javax.swing.JLabel statusBarVariable;
-    private javax.swing.JButton thresholdFunction;
-    private javax.swing.JPanel thresholdFunctionPanel;
     private javax.swing.JButton tint;
+    private javax.swing.JMenuItem tintItemMenu;
+    private javax.swing.JSlider tintSlider;
     private javax.swing.JButton tipOver;
     private javax.swing.JToggleButton tipOverFilters;
     private javax.swing.JToolBar toolBar;
-    private javax.swing.JToolBar toolBarImages;
-    private javax.swing.JPanel toolsPanel;
     private javax.swing.JToggleButton transparency;
-    private javax.swing.JButton twoHundredSeventyDegreesRotation;
     private javax.swing.JMenu viewMenu;
     private javax.swing.JSpinner widthStroke;
     private javax.swing.JToggleButton windowsEffect;
-    private javax.swing.JButton yellowBandCombination;
     // End of variables declaration//GEN-END:variables
 }

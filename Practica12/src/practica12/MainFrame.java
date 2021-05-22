@@ -35,6 +35,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import sm.ajr.image.AutoTintOp;
+import sm.ajr.image.OwnOp;
 import sm.ajr.image.PosterizeOp;
 import sm.ajr.image.RedOp;
 import sm.image.EqualizationOp;
@@ -126,8 +128,9 @@ public class MainFrame extends javax.swing.JFrame
     InternalFrame internalFrame = null;
     InternalFrameHandler internalFrameListener = null;
     MouseMotionHandler mouseMotionListener = null;
-    Color colorsArray[] = { Color.BLACK, Color.WHITE, Color.RED, Color.YELLOW,
-        Color.BLUE, Color.GREEN };
+    Color colorsArray[] = {
+        Color.BLACK, Color.WHITE, Color.RED, Color.YELLOW, Color.BLUE, Color.GREEN 
+    };
     ImageIcon icons[] = {
         new ImageIcon(this.getClass().getClassLoader().getResource("icons/contraste.png")),
         new ImageIcon(this.getClass().getClassLoader().getResource("icons/iluminar.png")),
@@ -167,9 +170,8 @@ public class MainFrame extends javax.swing.JFrame
         tintSlider.setVisible(false);        
         redHighlightSlider.setVisible(false);
         posterizeSlider.setVisible(false);
-        quadraticFunctionSlider.setVisible(false);
-        System.out.println(icons[0]);
-        
+        quadraticFunctionSlider.setVisible(false); 
+        ownOperatorSlider.setVisible(false);
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -790,6 +792,7 @@ public class MainFrame extends javax.swing.JFrame
         greenBandCombination = new javax.swing.JButton();
         tint = new javax.swing.JButton();
         tintSlider = new javax.swing.JSlider();
+        autoTintOp = new javax.swing.JButton();
         sepia = new javax.swing.JButton();
         equalization = new javax.swing.JButton();
         redHighlight = new javax.swing.JButton();
@@ -802,7 +805,10 @@ public class MainFrame extends javax.swing.JFrame
         jSeparator9 = new javax.swing.JToolBar.Separator();
         jLabel7 = new javax.swing.JLabel();
         challengesComboBox = new javax.swing.JComboBox<>();
+        ownOperatorButton = new javax.swing.JButton();
+        ownOperatorSlider = new javax.swing.JSlider();
         jSeparator10 = new javax.swing.JToolBar.Separator();
+        histogram = new javax.swing.JButton();
         statusBar = new javax.swing.JPanel();
         statusBarTitle = new javax.swing.JLabel();
         statusBarVariable = new javax.swing.JLabel();
@@ -1106,6 +1112,14 @@ public class MainFrame extends javax.swing.JFrame
         tintSlider.addFocusListener(formListener);
         toolBar.add(tintSlider);
 
+        autoTintOp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-AutoTintOp.png"))); // NOI18N
+        autoTintOp.setToolTipText("Tintado automático");
+        autoTintOp.setFocusable(false);
+        autoTintOp.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        autoTintOp.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        autoTintOp.addActionListener(formListener);
+        toolBar.add(autoTintOp);
+
         sepia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Sepia.png"))); // NOI18N
         sepia.setToolTipText("Sepia");
         sepia.addActionListener(formListener);
@@ -1170,7 +1184,7 @@ public class MainFrame extends javax.swing.JFrame
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Challenges.png"))); // NOI18N
         toolBar.add(jLabel7);
 
-        challengesComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Práctica 10: Umbral" }));
+        challengesComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Prác. 10: Umbral" }));
         challengesComboBox.setToolTipText("Otros retos");
         challengesComboBox.setMaximumSize(new java.awt.Dimension(160, 23));
         challengesComboBox.setMinimumSize(new java.awt.Dimension(160, 23));
@@ -1179,7 +1193,32 @@ public class MainFrame extends javax.swing.JFrame
         challengesComboBox.addFocusListener(formListener);
         challengesComboBox.addActionListener(formListener);
         toolBar.add(challengesComboBox);
+
+        ownOperatorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Own.png"))); // NOI18N
+        ownOperatorButton.setToolTipText("Mostrar/Ocultar Prác.12: Operador propio");
+        ownOperatorButton.setFocusable(false);
+        ownOperatorButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        ownOperatorButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        ownOperatorButton.addActionListener(formListener);
+        toolBar.add(ownOperatorButton);
+
+        ownOperatorSlider.setMaximum(256);
+        ownOperatorSlider.setToolTipText("Prác. 12: Operador propio");
+        ownOperatorSlider.setValue(0);
+        ownOperatorSlider.setMaximumSize(new java.awt.Dimension(100, 26));
+        ownOperatorSlider.setMinimumSize(new java.awt.Dimension(100, 26));
+        ownOperatorSlider.setPreferredSize(new java.awt.Dimension(100, 26));
+        ownOperatorSlider.addChangeListener(formListener);
+        ownOperatorSlider.addFocusListener(formListener);
+        toolBar.add(ownOperatorSlider);
         toolBar.add(jSeparator10);
+
+        histogram.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Histogram.png"))); // NOI18N
+        histogram.setFocusable(false);
+        histogram.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        histogram.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        histogram.addActionListener(formListener);
+        toolBar.add(histogram);
 
         getContentPane().add(toolBar, java.awt.BorderLayout.PAGE_START);
 
@@ -1194,7 +1233,7 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(statusBarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1724, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1855, Short.MAX_VALUE)
                 .addComponent(statusBarVariable)
                 .addGap(21, 21, 21))
         );
@@ -1216,7 +1255,7 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1834, Short.MAX_VALUE)
+            .addGap(0, 1965, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1348,6 +1387,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == duplicate) {
                 MainFrame.this.duplicateActionPerformed(evt);
             }
+            else if (evt.getSource() == contrastComboBox) {
+                MainFrame.this.contrastComboBoxActionPerformed(evt);
+            }
             else if (evt.getSource() == filterComboBox) {
                 MainFrame.this.filterComboBoxActionPerformed(evt);
             }
@@ -1393,6 +1435,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == challengesComboBox) {
                 MainFrame.this.challengesComboBoxActionPerformed(evt);
             }
+            else if (evt.getSource() == ownOperatorButton) {
+                MainFrame.this.ownOperatorButtonActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1414,8 +1459,11 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
             }
-            else if (evt.getSource() == contrastComboBox) {
-                MainFrame.this.contrastComboBoxActionPerformed(evt);
+            else if (evt.getSource() == autoTintOp) {
+                MainFrame.this.autoTintOpActionPerformed(evt);
+            }
+            else if (evt.getSource() == histogram) {
+                MainFrame.this.histogramActionPerformed(evt);
             }
         }
 
@@ -1444,6 +1492,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == challengesComboBox) {
                 MainFrame.this.challengesComboBoxFocusGained(evt);
             }
+            else if (evt.getSource() == ownOperatorSlider) {
+                MainFrame.this.ownOperatorSliderFocusGained(evt);
+            }
         }
 
         public void focusLost(java.awt.event.FocusEvent evt) {
@@ -1471,6 +1522,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == challengesComboBox) {
                 MainFrame.this.challengesComboBoxFocusLost(evt);
             }
+            else if (evt.getSource() == ownOperatorSlider) {
+                MainFrame.this.ownOperatorSliderFocusLost(evt);
+            }
         }
 
         public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -1494,6 +1548,9 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == posterizeSlider) {
                 MainFrame.this.posterizeSliderStateChanged(evt);
+            }
+            else if (evt.getSource() == ownOperatorSlider) {
+                MainFrame.this.ownOperatorSliderStateChanged(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -1913,7 +1970,7 @@ public class MainFrame extends javax.swing.JFrame
             String option = (String)challengesComboBox.getSelectedItem();
 
             switch(option){
-                case "Práctica 10: Umbral":
+                case "Prác. 10: Umbral":
                     this.applyLookup(this.thresholdFunctionTable(127));
                     break;
             }
@@ -1938,8 +1995,8 @@ public class MainFrame extends javax.swing.JFrame
     private void tintItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tintItemMenuActionPerformed
         this.swingControlsFocusGained();
         if(sourceImage != null){
-            TintOp tintOp = new sm.image.TintOp(
-                    (Color)colors.getSelectedItem(), 0.5f
+            AutoTintOp tintOp = new AutoTintOp(
+                    (Color)colors.getSelectedItem()
             );
             tintOp.filter(
                     sourceImage, 
@@ -2045,9 +2102,57 @@ public class MainFrame extends javax.swing.JFrame
             sourceImage = null;
         }
     }//GEN-LAST:event_contrastComboBoxActionPerformed
+
+    private void ownOperatorSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownOperatorSliderFocusGained
+        this.swingControlsFocusGained();
+    }//GEN-LAST:event_ownOperatorSliderFocusGained
+
+    private void ownOperatorSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownOperatorSliderFocusLost
+        sourceImage = null;
+        ownOperatorSlider.setValue(0);
+    }//GEN-LAST:event_ownOperatorSliderFocusLost
+
+    private void ownOperatorSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_ownOperatorSliderStateChanged
+        if(sourceImage != null){
+            OwnOp ownOp = new OwnOp(ownOperatorSlider.getValue());
+            ownOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            desktop.repaint(); 
+        }
+    }//GEN-LAST:event_ownOperatorSliderStateChanged
+
+    private void ownOperatorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ownOperatorButtonActionPerformed
+        ownOperatorSlider.setVisible(!ownOperatorSlider.isVisible());
+    }//GEN-LAST:event_ownOperatorButtonActionPerformed
+
+    private void autoTintOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoTintOpActionPerformed
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            AutoTintOp tintOp = new AutoTintOp(
+                    (Color)colors.getSelectedItem()
+            );
+            tintOp.filter(
+                    sourceImage, 
+                    internalFrame.getCanvas2D().getImage(false)
+            );
+            sourceImage = null;
+            desktop.repaint();
+        }
+    }//GEN-LAST:event_autoTintOpActionPerformed
+
+    private void histogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_histogramActionPerformed
+        this.swingControlsFocusGained();
+        if(sourceImage != null){
+            sm.image.Histogram histogram = new sm.image.Histogram(sourceImage);
+            System.out.println(histogram.getNormalizedHistogram(0)[0]);
+        }
+    }//GEN-LAST:event_histogramActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
+    private javax.swing.JButton autoTintOp;
     private javax.swing.JButton bandCombination;
     private javax.swing.JButton bandExtractor;
     private javax.swing.JSlider brightnessSlider;
@@ -2069,6 +2174,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JLabel firstRotationLabel;
     private javax.swing.JToggleButton generalPath;
     private javax.swing.JButton greenBandCombination;
+    private javax.swing.JButton histogram;
     private javax.swing.JMenu imageMenu;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -2091,6 +2197,8 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem newSizeImage;
     private javax.swing.JButton openCanvas;
     private javax.swing.JMenuItem openMenu;
+    private javax.swing.JButton ownOperatorButton;
+    private javax.swing.JSlider ownOperatorSlider;
     private javax.swing.JMenuItem pasteMenu;
     private javax.swing.JButton posterizeButton;
     private javax.swing.JSlider posterizeSlider;

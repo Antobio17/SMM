@@ -13,22 +13,22 @@ import sm.image.BufferedImageOpAdapter;
  *
  * @author Antonio Jiménez Rodríguez
  */
-public class RedOp extends BufferedImageOpAdapter{
+public class OwnOp extends BufferedImageOpAdapter{
     
     /******************************* PROPERTIES ******************************/
     
-    private int threshold;
+    private int parameter;
     
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Creates new operator PosterizeOp
+     * Creates new operator OwnOp
      * 
-     * @param threshold 
+     * @param parameter 
      */
-    public RedOp(int threshold)
+    public OwnOp(int parameter)
     {
-        this.threshold = threshold;
+        this.parameter = parameter;
     }
 
     /*************************** GETTER AND SETTER ***************************/
@@ -58,17 +58,11 @@ public class RedOp extends BufferedImageOpAdapter{
         for (int x = 0; x < src.getWidth(); x++) {
             for (int y = 0; y < src.getHeight(); y++) {
                     srcRaster.getPixel(x, y, pixelComp);
-                    if(pixelComp[0] - pixelComp[1] - pixelComp[2] >= threshold){
-                        pixelCompDest[0] = pixelComp[0];
-                        pixelCompDest[1] = pixelComp[1];
-                        pixelCompDest[2] = pixelComp[2];
-                    }else{
-                        int average = 
-                                (int)(pixelComp[0] + pixelComp[1] + pixelComp[2])/3;
-                        pixelCompDest[0] = average;
-                        pixelCompDest[1] = average;
-                        pixelCompDest[2] = average;
-                    }    
+                    
+                    pixelCompDest[0] = (pixelComp[0] + parameter) % 256;
+                    pixelCompDest[1] = (pixelComp[1] + parameter) % 256;
+                    pixelCompDest[2] = (pixelComp[2] + parameter) % 256;
+                        
                     destRaster.setPixel(x, y, pixelCompDest);
             }
         }

@@ -26,7 +26,8 @@ public class PosterizeOp extends BufferedImageOpAdapter{
      * 
      * @param levels 
      */
-    public PosterizeOp(int levels) {
+    public PosterizeOp(int levels)
+    {
         this.levels = levels;
     }
 
@@ -41,7 +42,8 @@ public class PosterizeOp extends BufferedImageOpAdapter{
      * @param dest
      * @return 
      */
-    public BufferedImage filter(BufferedImage src, BufferedImage dest) {
+    public BufferedImage filter(BufferedImage src, BufferedImage dest) 
+    {
         if (src == null)
             throw new NullPointerException("La imagen fuentes es nula.");
         

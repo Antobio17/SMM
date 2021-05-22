@@ -5,6 +5,7 @@
  */
 package sm.ajr.image;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import sm.image.BufferedImageOpAdapter;
@@ -13,22 +14,21 @@ import sm.image.BufferedImageOpAdapter;
  *
  * @author Antonio Jiménez Rodríguez
  */
-public class RedOp extends BufferedImageOpAdapter{
+public class AutoTintOp extends BufferedImageOpAdapter{
     
     /******************************* PROPERTIES ******************************/
     
-    private int threshold;
+    private Color color;
     
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Creates new operator PosterizeOp
+     * Creates new operator AutoTintOp
      * 
-     * @param threshold 
+     * @param color 
      */
-    public RedOp(int threshold)
-    {
-        this.threshold = threshold;
+    public AutoTintOp(Color color) {
+        this.color = color;
     }
 
     /*************************** GETTER AND SETTER ***************************/
@@ -42,8 +42,7 @@ public class RedOp extends BufferedImageOpAdapter{
      * @param dest
      * @return 
      */
-    public BufferedImage filter(BufferedImage src, BufferedImage dest)
-    {
+    public BufferedImage filter(BufferedImage src, BufferedImage dest) {
         if (src == null)
             throw new NullPointerException("La imagen fuentes es nula.");
         
@@ -54,21 +53,17 @@ public class RedOp extends BufferedImageOpAdapter{
         WritableRaster destRaster = dest.getRaster();
         int[] pixelComp = new int[srcRaster.getNumBands()];
         int[] pixelCompDest = new int[srcRaster.getNumBands()];
-
+        System.out.println(color.getGreen());
         for (int x = 0; x < src.getWidth(); x++) {
             for (int y = 0; y < src.getHeight(); y++) {
                     srcRaster.getPixel(x, y, pixelComp);
-                    if(pixelComp[0] - pixelComp[1] - pixelComp[2] >= threshold){
-                        pixelCompDest[0] = pixelComp[0];
-                        pixelCompDest[1] = pixelComp[1];
-                        pixelCompDest[2] = pixelComp[2];
-                    }else{
-                        int average = 
-                                (int)(pixelComp[0] + pixelComp[1] + pixelComp[2])/3;
-                        pixelCompDest[0] = average;
-                        pixelCompDest[1] = average;
-                        pixelCompDest[2] = average;
-                    }    
+                    
+                    float mixingDegree = (float)(((pixelComp[0] + pixelComp[1] + pixelComp[2])/3.0)/255.0);
+                    
+                    pixelCompDest[0] = (int)(mixingDegree * color.getRed() + (1 - mixingDegree) * pixelComp[0]);
+                    pixelCompDest[1] = (int)(mixingDegree * color.getGreen() + (1 - mixingDegree) * pixelComp[1]);
+                    pixelCompDest[2] = (int)(mixingDegree * color.getBlue() + (1 - mixingDegree) * pixelComp[2]);
+                    
                     destRaster.setPixel(x, y, pixelCompDest);
             }
         }

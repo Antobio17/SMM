@@ -11,6 +11,8 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -29,10 +31,14 @@ import java.awt.image.LookupTable;
 import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import sm.ajr.image.AutoTintOp;
@@ -44,6 +50,8 @@ import sm.image.KernelProducer;
 import sm.image.LookupTableProducer;
 import sm.image.SepiaOp;
 import sm.image.TintOp;
+import sm.sound.SMClipPlayer;
+import sm.sound.SMSoundRecorder;
 
 /**
  *
@@ -89,11 +97,11 @@ public class MainFrame extends javax.swing.JFrame
             5, 1, horizontalBlurringMask);
     
     public final float[] diagonalBlurringMask = {
-        0.2f,   0f,   0f,   0f,   0f,
-          0f, 0.2f,   0f,   0f,   0f,
-          0f,   0f, 0.2f,   0f,   0f,
-          0f,   0f,   0f, 0.2f,   0f,
           0f,   0f,   0f,   0f, 0.2f,
+          0f,   0f,   0f, 0.2f,   0f,
+          0f,   0f, 0.2f,   0f,   0f,
+          0f, 0.2f,   0f,   0f,   0f,
+        0.2f,   0f,   0f,   0f,   0f,
     };
     public final Filter diagonalBlurring = new Filter(
             5, 5, diagonalBlurringMask);
@@ -144,6 +152,14 @@ public class MainFrame extends javax.swing.JFrame
     /* Brightness */
     BufferedImage sourceImage;
     
+    /* Audio */
+    SMClipPlayer player = null;
+    SMSoundRecorder recorder = null;
+    AudioHandler audioListener = null;
+    RecordHandler recordListener = null;
+    Timer timer = null;
+    int minutes, seconds;
+    
     /******************************* CONSTRUCTS ******************************/
     
     /**
@@ -172,6 +188,37 @@ public class MainFrame extends javax.swing.JFrame
         posterizeSlider.setVisible(false);
         quadraticFunctionSlider.setVisible(false); 
         ownOperatorSlider.setVisible(false);
+        audioListener = new AudioHandler();
+        recordListener = new RecordHandler();
+        minutes = 0;
+        seconds = 0;
+        timer = new Timer(1000, new ActionListener(){
+        @Override
+            public void actionPerformed(ActionEvent e) {
+                if(recorder != null){
+                    seconds++;
+                    if(seconds == 60){
+                        seconds = 0;
+                        minutes++;
+                    }
+                    recordingTime.setText(
+                            (minutes < 10 ? "0" + minutes : minutes) 
+                            + ":" + (seconds < 10 ? "0" + seconds : seconds) 
+                    );
+                }else{
+                    seconds--;
+                    if(seconds < 0){
+                        seconds = 59;
+                        minutes--;
+                    }
+                    audioTime.setText(
+                            (minutes < 10 ? "0" + minutes : minutes) 
+                            + ":" + (seconds < 10 ? "0" + seconds : seconds) 
+                    );
+                }
+            }
+        });
+        audioTime.setVisible(false);
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -332,35 +379,56 @@ public class MainFrame extends javax.swing.JFrame
     }
     
     /**
-     * Method to open a new internal frame with a image selected and an 
-     * initializate canvas in the desktop
+     * Method to open a file.
      * 
      */
-    private void openCanvas()
+    private void openFile()
     {
         JFileChooser dlg = new JFileChooser();
         dlg.setFileFilter(new FileNameExtensionFilter(
                 "Imagenes [jpg, bmp, gif, png, jpeg, wbmp]",
                 "jpg", "bmp", "gif", "png", "jpeg", "wbmp"));
+        dlg.setFileFilter(new FileNameExtensionFilter(
+                "Audios [wav, au, mid]",
+                "wav", "au", "mid"));
         int resp = dlg.showOpenDialog(this);
         if( resp == JFileChooser.APPROVE_OPTION) {
             try{
-                File file = dlg.getSelectedFile();
-                BufferedImage image = ImageIO.read(file);
-                InternalFrame iF = new InternalFrame();
-                this.desktop.add(iF);
-                iF.setTitle(file.getName());
-                iF.setVisible(true);
-                initializeCanvas(iF);
-                internalFrame = iF;
-                // Dialog to set meassure of the canvas
-                throwDialogMeassureAndSetImage(
-                        image.getWidth(), image.getHeight());
-                iF.getCanvas2D().setImage(image);
+                if(this.isImage(dlg.getSelectedFile())){
+                    File file = dlg.getSelectedFile();
+                    BufferedImage image = ImageIO.read(file);
+                    InternalFrame iF = new InternalFrame();
+                    this.desktop.add(iF);
+                    iF.setTitle(file.getName());
+                    iF.setVisible(true);
+                    initializeCanvas(iF);
+                    internalFrame = iF;
+                    // Dialog to set meassure of the canvas
+                    throwDialogMeassureAndSetImage(
+                            image.getWidth(), image.getHeight());
+                    iF.getCanvas2D().setImage(image);
+                }else if(this.isAudio(dlg.getSelectedFile())){
+                    File file = new File(dlg.getSelectedFile().getPath()) {
+                        @Override
+                        public String toString() {
+                            return this.getName();
+                        }
+                    };
+                    audioComboBox.addItem(file);
+//                    audioComboBox.setSelectedItem(file);
+                    if(player != null){
+                        player.stop();
+                        player = null;
+                    }
+                    if(recorder != null){
+                        recorder.stop();
+                        recorder = null;
+                    }
+                }
             }catch(Exception ex){
                 JOptionPane.showMessageDialog(
                         null, 
-                        "Error al leer la imagen: " + ex.getLocalizedMessage(),
+                        "Error al leer archivo: " + ex.getLocalizedMessage(),
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -371,32 +439,79 @@ public class MainFrame extends javax.swing.JFrame
      * Method to save the active canvas to an image.
      * 
      */
-    private void saveCanvas()
+    private void saveFile()
     {
-        if (internalFrame != null) {
-            BufferedImage image = internalFrame.getCanvas2D().getImage(true);
-            if (image != null) {
+        
                 JFileChooser dlg = new JFileChooser();
                 dlg.setFileFilter(new FileNameExtensionFilter(
                         "Imagenes [jpg, bmp, gif, png, jpeg, wbmp]",
                         "jpg", "bmp", "gif", "png", "jpeg", "wbmp"));
+                dlg.setFileFilter(new FileNameExtensionFilter(
+                        "Audios [wav, au, mid]",
+                        "wav", "au", "mid"));
+                
                 int resp = dlg.showSaveDialog(this);
                 if (resp == JFileChooser.APPROVE_OPTION) {
                     try {
-                        File file = dlg.getSelectedFile();
-                        ImageIO.write(image, this.getExtension(
-                                file.getName()), file);
-                        internalFrame.setTitle(file.getName());
+                        if (this.isImage(dlg.getSelectedFile())) {
+                            if (internalFrame != null) {
+                                BufferedImage image = internalFrame.getCanvas2D().getImage(true);
+                                if (image != null) {
+                                    File file = dlg.getSelectedFile();
+                                    ImageIO.write(image, this.getExtension(
+                                            file.getName()), file);
+                                    internalFrame.setTitle(file.getName());
+                                }
+                            }
+                        }else if(this.isAudio(dlg.getSelectedFile())){
+                            File file = new File(dlg.getSelectedFile().getPath()) {
+                                @Override
+                                public String toString() {
+                                    return this.getName();
+                                }
+                            };
+                            audioComboBox.addItem(file);
+                            audioComboBox.setSelectedItem(file);
+                        }
+
+                        
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(
                                 null, 
-                                "Error al guardar la imagen", 
+                                "Error al guardar el archivo", 
                                 "Error", 
                                 JOptionPane.ERROR_MESSAGE);
                     }
+                }else{
+                    
                 }
-            }
-        }
+            
+    }
+    
+    /**
+     * Methods to indentificate if the type of the file is an image.
+     * 
+     * @param file
+     * @return 
+     */
+    private boolean isImage(File file)
+    {
+        String extension = this.getExtension(file.getName());
+        return ("jpg".equals(extension) || "bmp".equals(extension) ||
+                "gif".equals(extension) || "png".equals(extension) ||
+                "jpeg".equals(extension) || "wbmp".equals(extension));
+    }
+    
+    /**
+     * Methods to indentificate if the type of the file is an audio.
+     * 
+     * @param file
+     * @return 
+     */
+    private boolean isAudio(File file)
+    {
+        String extension = this.getExtension(file.getName());
+        return ("wave".equals(extension) || "au".equals(extension));
     }
     
     /**
@@ -624,6 +739,11 @@ public class MainFrame extends javax.swing.JFrame
         return new BufferedImage(colorModel, bRaster, false, null);
     }
     
+    private void resetTimer(){
+        seconds = 0;
+        minutes = 0;
+        recordingTime.setText("00:00");
+    }
     /******************************** HANDLERS *******************************/
     
     private class MouseMotionHandler extends MouseAdapter
@@ -737,6 +857,71 @@ public class MainFrame extends javax.swing.JFrame
      
     }
     
+    class AudioHandler implements LineListener
+    {
+
+        @Override
+        public void update(LineEvent event) {
+            System.out.println(event.getType());
+            if (event.getType() == LineEvent.Type.START) {
+                play.setIcon(
+                        new ImageIcon(
+                                this.getClass().getClassLoader().getResource(
+                                        "icons/1-Pause.png"
+                                )
+                        )
+                );
+//                    audioTime.setVisible(true);
+//                    minutes = (int)TimeUnit.MILLISECONDS.toMinutes(
+//                        player.getClip().getMicrosecondLength()
+//                    );
+//                    seconds = (int)TimeUnit.MILLISECONDS.toSeconds(
+//                            player.getClip().getMicrosecondLength()
+//                    );
+                
+//                timer.start();
+            }
+            if (event.getType() == LineEvent.Type.STOP) {
+                play.setIcon(
+                        new ImageIcon(
+                                this.getClass().getClassLoader().getResource(
+                                        "icons/1-Play.png"
+                                )
+                        )
+                );
+                if(player.getClip().getFrameLength() == player.getClip().getFramePosition()){
+                    player = null;
+                }
+//                timer.stop();
+//                audioTime.setVisible(false);
+            }
+            if (event.getType() == LineEvent.Type.CLOSE) {
+//                timer.stop();
+//                resetTimer();
+            }
+        }
+    }
+    
+    class RecordHandler implements LineListener
+    {
+        
+        @Override
+        public void update(LineEvent event) {
+            if (event.getType() == LineEvent.Type.START) {
+                play.setEnabled(false);
+                rec.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("icons/1-StopRecord.png")));
+            }
+            if (event.getType() == LineEvent.Type.STOP) {
+                play.setEnabled(true);
+                rec.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("icons/1-Rec.png")));
+            }
+            if (event.getType() == LineEvent.Type.CLOSE) {
+                
+            }
+        }
+        
+    }
+    
     /************************** JAVA GENERATED CODE **************************/
     
     /**
@@ -752,7 +937,7 @@ public class MainFrame extends javax.swing.JFrame
         jSeparator3 = new javax.swing.JSeparator();
         toolBar = new javax.swing.JToolBar();
         newCanvas = new javax.swing.JButton();
-        openCanvas = new javax.swing.JButton();
+        openFile = new javax.swing.JButton();
         saveCanvas = new javax.swing.JButton();
         separator2 = new javax.swing.JToolBar.Separator();
         generalPath = new javax.swing.JToggleButton();
@@ -814,8 +999,13 @@ public class MainFrame extends javax.swing.JFrame
         statusBarVariable = new javax.swing.JLabel();
         containerPanel = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
-        play = new javax.swing.JToggleButton();
+        play = new javax.swing.JButton();
         stop = new javax.swing.JButton();
+        audioComboBox = new javax.swing.JComboBox<>();
+        audioTime = new javax.swing.JLabel();
+        jSeparator12 = new javax.swing.JToolBar.Separator();
+        rec = new javax.swing.JButton();
+        recordingTime = new javax.swing.JLabel();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -854,13 +1044,13 @@ public class MainFrame extends javax.swing.JFrame
         newCanvas.addActionListener(formListener);
         toolBar.add(newCanvas);
 
-        openCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Open.png"))); // NOI18N
-        openCanvas.setToolTipText("Abrir lienzo");
-        openCanvas.setFocusable(false);
-        openCanvas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        openCanvas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        openCanvas.addActionListener(formListener);
-        toolBar.add(openCanvas);
+        openFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Open.png"))); // NOI18N
+        openFile.setToolTipText("Abrir archivo");
+        openFile.setFocusable(false);
+        openFile.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        openFile.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        openFile.addActionListener(formListener);
+        toolBar.add(openFile);
 
         saveCanvas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Save.png"))); // NOI18N
         saveCanvas.setToolTipText("Guardar lienzo");
@@ -1254,16 +1444,41 @@ public class MainFrame extends javax.swing.JFrame
         jToolBar1.setRollover(true);
 
         play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Play.png"))); // NOI18N
+        play.setToolTipText("Play");
         play.setFocusable(false);
         play.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         play.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        play.addActionListener(formListener);
         jToolBar1.add(play);
 
         stop.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Stop.png"))); // NOI18N
+        stop.setToolTipText("Stop");
         stop.setFocusable(false);
         stop.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         stop.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        stop.addActionListener(formListener);
         jToolBar1.add(stop);
+
+        audioComboBox.setToolTipText("Selector de audios");
+        audioComboBox.setMaximumSize(new java.awt.Dimension(150, 26));
+        audioComboBox.setMinimumSize(new java.awt.Dimension(150, 26));
+        audioComboBox.setPreferredSize(new java.awt.Dimension(150, 26));
+        audioComboBox.addActionListener(formListener);
+        jToolBar1.add(audioComboBox);
+
+        audioTime.setText("00:00");
+        jToolBar1.add(audioTime);
+        jToolBar1.add(jSeparator12);
+
+        rec.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Rec.png"))); // NOI18N
+        rec.setFocusable(false);
+        rec.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        rec.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        rec.addActionListener(formListener);
+        jToolBar1.add(rec);
+
+        recordingTime.setText("00:00");
+        jToolBar1.add(recordingTime);
 
         containerPanel.add(jToolBar1, java.awt.BorderLayout.SOUTH);
 
@@ -1278,7 +1493,7 @@ public class MainFrame extends javax.swing.JFrame
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 629, Short.MAX_VALUE)
+            .addGap(0, 628, Short.MAX_VALUE)
         );
 
         containerPanel.add(desktop, java.awt.BorderLayout.CENTER);
@@ -1364,8 +1579,8 @@ public class MainFrame extends javax.swing.JFrame
             if (evt.getSource() == newCanvas) {
                 MainFrame.this.newCanvasActionPerformed(evt);
             }
-            else if (evt.getSource() == openCanvas) {
-                MainFrame.this.openCanvasActionPerformed(evt);
+            else if (evt.getSource() == openFile) {
+                MainFrame.this.openFileActionPerformed(evt);
             }
             else if (evt.getSource() == saveCanvas) {
                 MainFrame.this.saveCanvasActionPerformed(evt);
@@ -1462,6 +1677,18 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == histogram) {
                 MainFrame.this.histogramActionPerformed(evt);
+            }
+            else if (evt.getSource() == play) {
+                MainFrame.this.playActionPerformed(evt);
+            }
+            else if (evt.getSource() == stop) {
+                MainFrame.this.stopActionPerformed(evt);
+            }
+            else if (evt.getSource() == audioComboBox) {
+                MainFrame.this.audioComboBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == rec) {
+                MainFrame.this.recActionPerformed(evt);
             }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
@@ -1579,11 +1806,11 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_newMenuActionPerformed
 
     private void saveMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuActionPerformed
-        saveCanvas();
+        saveFile();
     }//GEN-LAST:event_saveMenuActionPerformed
 
     private void openMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuActionPerformed
-        openCanvas();
+        openFile();
     }//GEN-LAST:event_openMenuActionPerformed
 
     private void generalPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generalPathActionPerformed
@@ -1670,12 +1897,12 @@ public class MainFrame extends javax.swing.JFrame
         newCanvas();
     }//GEN-LAST:event_newCanvasActionPerformed
 
-    private void openCanvasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCanvasActionPerformed
-        openCanvas();
-    }//GEN-LAST:event_openCanvasActionPerformed
+    private void openFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileActionPerformed
+        openFile();
+    }//GEN-LAST:event_openFileActionPerformed
 
     private void saveCanvasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCanvasActionPerformed
-        saveCanvas();
+        this.saveFile();
     }//GEN-LAST:event_saveCanvasActionPerformed
 
     private void transparencyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transparencyActionPerformed
@@ -2168,9 +2395,61 @@ public class MainFrame extends javax.swing.JFrame
             System.out.println(histogram.getNormalizedHistogram(0)[0]);
         }
     }//GEN-LAST:event_histogramActionPerformed
+
+    private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
+        if(audioComboBox.getItemCount() > 0){
+            if(player == null) {
+                File f = (File) audioComboBox.getSelectedItem();
+                if (f != null) {
+                    player = new SMClipPlayer(f);
+                    player.addLineListener(audioListener);
+                }
+            }
+            if(player.getClip().isRunning()){
+                player.pause();
+            }else{
+                player.play();
+            }
+        }
+    }//GEN-LAST:event_playActionPerformed
+
+    private void stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopActionPerformed
+        if(player != null){
+            player.stop();
+            player = null;
+        }
+    }//GEN-LAST:event_stopActionPerformed
+
+    private void audioComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_audioComboBoxActionPerformed
+        File f = (File) audioComboBox.getSelectedItem();
+        if (f != null) {
+            player = new SMClipPlayer(f);
+            player.addLineListener(audioListener);
+        }
+    }//GEN-LAST:event_audioComboBoxActionPerformed
+
+    private void recActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recActionPerformed
+        if(recorder == null){
+            this.saveFile();
+            File f = (File) audioComboBox.getSelectedItem();
+            if (f != null) {
+                recorder = new SMSoundRecorder(f);
+                recorder.addLineListener(recordListener);
+                if(recorder != null){
+                    recorder.record();
+                } 
+            }
+        }else{
+            recorder.stop();
+            recorder = null;
+            this.resetTimer();
+        }
+    }//GEN-LAST:event_recActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton antialiasing;
+    private javax.swing.JComboBox<File> audioComboBox;
+    private javax.swing.JLabel audioTime;
     private javax.swing.JButton autoTintOp;
     private javax.swing.JButton bandCombination;
     private javax.swing.JButton bandExtractor;
@@ -2201,6 +2480,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator11;
+    private javax.swing.JToolBar.Separator jSeparator12;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -2215,12 +2495,12 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JButton newCanvas;
     private javax.swing.JMenuItem newMenu;
     private javax.swing.JMenuItem newSizeImage;
-    private javax.swing.JButton openCanvas;
+    private javax.swing.JButton openFile;
     private javax.swing.JMenuItem openMenu;
     private javax.swing.JButton ownOperatorButton;
     private javax.swing.JSlider ownOperatorSlider;
     private javax.swing.JMenuItem pasteMenu;
-    private javax.swing.JToggleButton play;
+    private javax.swing.JButton play;
     private javax.swing.JButton posterizeButton;
     private javax.swing.JSlider posterizeSlider;
     private javax.swing.JMenu printMenu;
@@ -2228,6 +2508,8 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem printerMenu;
     private javax.swing.JButton quadraticFunctionButton;
     private javax.swing.JSlider quadraticFunctionSlider;
+    private javax.swing.JButton rec;
+    private javax.swing.JLabel recordingTime;
     private javax.swing.JToggleButton rectangle;
     private javax.swing.JButton redHighlight;
     private javax.swing.JMenuItem redHighlightItemMenu;

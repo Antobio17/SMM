@@ -31,7 +31,15 @@ import java.awt.image.LookupTable;
 import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
@@ -157,6 +165,7 @@ public class MainFrame extends javax.swing.JFrame
     SMSoundRecorder recorder = null;
     AudioHandler audioListener = null;
     RecordHandler recordListener = null;
+    File recordingFile;
     Timer timer = null;
     int minutes, seconds;
     
@@ -195,30 +204,18 @@ public class MainFrame extends javax.swing.JFrame
         timer = new Timer(1000, new ActionListener(){
         @Override
             public void actionPerformed(ActionEvent e) {
-                if(recorder != null){
-                    seconds++;
-                    if(seconds == 60){
-                        seconds = 0;
-                        minutes++;
-                    }
-                    recordingTime.setText(
-                            (minutes < 10 ? "0" + minutes : minutes) 
-                            + ":" + (seconds < 10 ? "0" + seconds : seconds) 
-                    );
-                }else{
-                    seconds--;
-                    if(seconds < 0){
-                        seconds = 59;
-                        minutes--;
-                    }
-                    audioTime.setText(
-                            (minutes < 10 ? "0" + minutes : minutes) 
-                            + ":" + (seconds < 10 ? "0" + seconds : seconds) 
-                    );
+                seconds++;
+                if(seconds == 60){
+                    seconds = 0;
+                    minutes++;
                 }
+                recordingTime.setText(
+                        (minutes < 10 ? "0" + minutes : minutes) 
+                        + ":" + (seconds < 10 ? "0" + seconds : seconds) 
+                );
             }
         });
-        audioTime.setVisible(false);
+        stop.setEnabled(false);
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -352,7 +349,7 @@ public class MainFrame extends javax.swing.JFrame
      * Ellipse, Selector) to non selected.
      * 
      */
-    private void toolsSelectedToFalse()
+    private void _toolsSelectedToFalse()
     {
         generalPath.setSelected(false);
         line.setSelected(false);
@@ -368,13 +365,13 @@ public class MainFrame extends javax.swing.JFrame
      * the desktop
      * 
      */
-    private void newCanvas()
+    private void _newCanvas()
     {
         InternalFrame iF = new InternalFrame();
         desktop.add(iF);
         iF.setVisible(true);
         
-        initializeCanvas(iF);
+        _initializeCanvas(iF);
         internalFrame = iF;
     }
     
@@ -382,7 +379,7 @@ public class MainFrame extends javax.swing.JFrame
      * Method to open a file.
      * 
      */
-    private void openFile()
+    private void _openFile()
     {
         JFileChooser dlg = new JFileChooser();
         dlg.setFileFilter(new FileNameExtensionFilter(
@@ -394,20 +391,20 @@ public class MainFrame extends javax.swing.JFrame
         int resp = dlg.showOpenDialog(this);
         if( resp == JFileChooser.APPROVE_OPTION) {
             try{
-                if(this.isImage(dlg.getSelectedFile())){
+                if(this._isImage(dlg.getSelectedFile())){
                     File file = dlg.getSelectedFile();
                     BufferedImage image = ImageIO.read(file);
                     InternalFrame iF = new InternalFrame();
                     this.desktop.add(iF);
                     iF.setTitle(file.getName());
                     iF.setVisible(true);
-                    initializeCanvas(iF);
+                    _initializeCanvas(iF);
                     internalFrame = iF;
                     // Dialog to set meassure of the canvas
-                    throwDialogMeassureAndSetImage(
+                    _throwDialogMeassureAndSetImage(
                             image.getWidth(), image.getHeight());
                     iF.getCanvas2D().setImage(image);
-                }else if(this.isAudio(dlg.getSelectedFile())){
+                }else if(this._isAudio(dlg.getSelectedFile())){
                     File file = new File(dlg.getSelectedFile().getPath()) {
                         @Override
                         public String toString() {
@@ -425,7 +422,7 @@ public class MainFrame extends javax.swing.JFrame
                         recorder = null;
                     }
                 }
-            }catch(Exception ex){
+            }catch(IOException ex){
                 JOptionPane.showMessageDialog(
                         null, 
                         "Error al leer archivo: " + ex.getLocalizedMessage(),
@@ -439,7 +436,7 @@ public class MainFrame extends javax.swing.JFrame
      * Method to save the active canvas to an image.
      * 
      */
-    private void saveFile()
+    private void _saveFile()
     {
         
                 JFileChooser dlg = new JFileChooser();
@@ -453,29 +450,30 @@ public class MainFrame extends javax.swing.JFrame
                 int resp = dlg.showSaveDialog(this);
                 if (resp == JFileChooser.APPROVE_OPTION) {
                     try {
-                        if (this.isImage(dlg.getSelectedFile())) {
+                        if (this._isImage(dlg.getSelectedFile())) {
                             if (internalFrame != null) {
                                 BufferedImage image = internalFrame.getCanvas2D().getImage(true);
                                 if (image != null) {
                                     File file = dlg.getSelectedFile();
-                                    ImageIO.write(image, this.getExtension(
+                                    ImageIO.write(image, this._getExtension(
                                             file.getName()), file);
                                     internalFrame.setTitle(file.getName());
                                 }
                             }
-                        }else if(this.isAudio(dlg.getSelectedFile())){
-                            File file = new File(dlg.getSelectedFile().getPath()) {
-                                @Override
-                                public String toString() {
-                                    return this.getName();
-                                }
-                            };
-                            audioComboBox.addItem(file);
-                            audioComboBox.setSelectedItem(file);
+                        }else if(this._isAudio(dlg.getSelectedFile())){
+                            if(recordingFile != null){
+                                File file = new File(dlg.getSelectedFile().getPath()) {
+                                        @Override
+                                        public String toString() {
+                                            return this.getName();
+                                        }
+                                };
+                                _cloneFile(recordingFile, file);
+                                audioComboBox.addItem(file);
+                                audioComboBox.setSelectedItem(file);
+                            }
                         }
-
-                        
-                    } catch (Exception ex) {
+                    } catch (IOException ex) {
                         JOptionPane.showMessageDialog(
                                 null, 
                                 "Error al guardar el archivo", 
@@ -494,9 +492,9 @@ public class MainFrame extends javax.swing.JFrame
      * @param file
      * @return 
      */
-    private boolean isImage(File file)
+    private boolean _isImage(File file)
     {
-        String extension = this.getExtension(file.getName());
+        String extension = this._getExtension(file.getName());
         return ("jpg".equals(extension) || "bmp".equals(extension) ||
                 "gif".equals(extension) || "png".equals(extension) ||
                 "jpeg".equals(extension) || "wbmp".equals(extension));
@@ -508,9 +506,9 @@ public class MainFrame extends javax.swing.JFrame
      * @param file
      * @return 
      */
-    private boolean isAudio(File file)
+    private boolean _isAudio(File file)
     {
-        String extension = this.getExtension(file.getName());
+        String extension = this._getExtension(file.getName());
         return ("wave".equals(extension) || "au".equals(extension));
     }
     
@@ -518,7 +516,7 @@ public class MainFrame extends javax.swing.JFrame
      * Methods to initialize the options of the canvas.
      * 
      */
-    private void initializeCanvas(InternalFrame iF)
+    private void _initializeCanvas(InternalFrame iF)
     {
         // Assign the listeners
         iF.addInternalFrameListener(internalFrameListener);
@@ -570,7 +568,7 @@ public class MainFrame extends javax.swing.JFrame
      * @param width Width input.
      * @param height Height input.
      */
-    private void throwDialogMeassureAndSetImage(int width, int height)
+    private void _throwDialogMeassureAndSetImage(int width, int height)
     {
         SizeDialog sizeDialog = new SizeDialog(this, true, width, height);
         sizeDialog.setMainFrame(this);
@@ -584,7 +582,7 @@ public class MainFrame extends javax.swing.JFrame
      * 
      * @return String
      */
-    private String getExtension(String fileName)
+    private String _getExtension(String fileName)
     {
         String extension = "";
         
@@ -603,11 +601,11 @@ public class MainFrame extends javax.swing.JFrame
      * Method that is activated when any controls' focus is gained.
      * 
      */
-    private void swingControlsFocusGained()
+    private void _swingControlsFocusGained()
     {
         if(internalFrame != null){
             if(tipOverFilters.isSelected())
-                this.tipOverShapes();
+                this._tipOverShapes();
             
             ColorModel colorModel = 
                     internalFrame.getCanvas2D().getImage(false).getColorModel();
@@ -622,7 +620,7 @@ public class MainFrame extends javax.swing.JFrame
     /**
      * Method to tip over the shapes on the canvas.
      */
-    private void tipOverShapes()
+    private void _tipOverShapes()
     {
         if(internalFrame != null){
             internalFrame.getCanvas2D().setImage(
@@ -637,7 +635,7 @@ public class MainFrame extends javax.swing.JFrame
      * @param index
      * @return Kernel
      */
-    private Kernel getKernelFromSelect(int index)
+    private Kernel _getKernelFromSelect(int index)
     {       
         return new Kernel(
                 filters[index].getNumRows(), 
@@ -652,7 +650,7 @@ public class MainFrame extends javax.swing.JFrame
      * 
      * @param lookupTable
      */
-    private void applyLookup(LookupTable lookupTable)
+    private void _applyLookup(LookupTable lookupTable)
     {
         if (internalFrame != null) {
             if(sourceImage != null){
@@ -676,7 +674,7 @@ public class MainFrame extends javax.swing.JFrame
      * 
      * @param degrees Degrees to apply in rotation.
      */
-    private void applyRotation(int degrees)
+    private void _applyRotation(int degrees)
     {
         if(internalFrame != null){
             try{
@@ -701,7 +699,7 @@ public class MainFrame extends javax.swing.JFrame
      * 
      * @param matrix 
      */
-    private void applyCombineOp(float[][] matrix)
+    private void _applyCombineOp(float[][] matrix)
     {
         if(internalFrame != null){
             if(sourceImage != null){
@@ -724,7 +722,7 @@ public class MainFrame extends javax.swing.JFrame
      * @param band
      * @return 
      */
-    private BufferedImage getImageBand(BufferedImage image, int band) {
+    private BufferedImage _getImageBand(BufferedImage image, int band) {
         ColorSpace colorSpace = new sm.image.color.GreyColorSpace();
         ComponentColorModel colorModel = new ComponentColorModel(
                 colorSpace, false, false,Transparency.OPAQUE,DataBuffer.TYPE_BYTE
@@ -739,11 +737,38 @@ public class MainFrame extends javax.swing.JFrame
         return new BufferedImage(colorModel, bRaster, false, null);
     }
     
-    private void resetTimer(){
+    private void _resetTimer(){
         seconds = 0;
         minutes = 0;
         recordingTime.setText("00:00");
     }
+    
+    /**
+     * Funcion para clonar el buffer de un archivo.
+     * 
+     * @param source Archivo fuente a clonar de tipo File.
+     * @param dest Archivo destino al que aplicar la clonacion de tipo File.
+     * @throws IOException 
+     */
+    private static void _cloneFile(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            if(is != null && os != null){
+                is.close();
+                os.close();
+            }
+        }
+    }
+    
     /******************************** HANDLERS *******************************/
     
     private class MouseMotionHandler extends MouseAdapter
@@ -823,13 +848,13 @@ public class MainFrame extends javax.swing.JFrame
             internalFrame = (InternalFrame)evt.getInternalFrame();
             
             if(internalFrame.getCanvas2D().getSelectorMode()){
-                toolsSelectedToFalse();
+                _toolsSelectedToFalse();
                 selector.setSelected(true);
                 internalFrame.getCanvas2D().setSelectorMode(true);
                 internalFrame.getCanvas2D().setCursor(
                         new java.awt.Cursor(java.awt.Cursor.MOVE_CURSOR));
             }else{
-                toolsSelectedToFalse();
+                _toolsSelectedToFalse();
                 switch(internalFrame.getCanvas2D().getActiveShape()){
                     case GENERALPATH:
                         generalPath.setSelected(true);
@@ -862,7 +887,6 @@ public class MainFrame extends javax.swing.JFrame
 
         @Override
         public void update(LineEvent event) {
-            System.out.println(event.getType());
             if (event.getType() == LineEvent.Type.START) {
                 play.setIcon(
                         new ImageIcon(
@@ -871,15 +895,10 @@ public class MainFrame extends javax.swing.JFrame
                                 )
                         )
                 );
-//                    audioTime.setVisible(true);
-//                    minutes = (int)TimeUnit.MILLISECONDS.toMinutes(
-//                        player.getClip().getMicrosecondLength()
-//                    );
-//                    seconds = (int)TimeUnit.MILLISECONDS.toSeconds(
-//                            player.getClip().getMicrosecondLength()
-//                    );
-                
-//                timer.start();
+                rec.setEnabled(false);
+                stop.setEnabled(true);
+                audioComboBox.setEnabled(false);
+                timer.start();
             }
             if (event.getType() == LineEvent.Type.STOP) {
                 play.setIcon(
@@ -889,16 +908,22 @@ public class MainFrame extends javax.swing.JFrame
                                 )
                         )
                 );
+                timer.stop();
                 if(player.getClip().getFrameLength() == player.getClip().getFramePosition()){
-                    player = null;
+                    _closeEvent();
                 }
-//                timer.stop();
-//                audioTime.setVisible(false);
             }
             if (event.getType() == LineEvent.Type.CLOSE) {
-//                timer.stop();
-//                resetTimer();
+                _closeEvent();
             }
+        }
+        
+        private void _closeEvent(){
+            rec.setEnabled(true);
+            stop.setEnabled(false);
+            audioComboBox.setEnabled(true);
+            player = null;
+            _resetTimer();
         }
     }
     
@@ -909,11 +934,18 @@ public class MainFrame extends javax.swing.JFrame
         public void update(LineEvent event) {
             if (event.getType() == LineEvent.Type.START) {
                 play.setEnabled(false);
+                stop.setEnabled(false);
+                audioComboBox.setEnabled(false);
                 rec.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("icons/1-StopRecord.png")));
+                timer.start();
             }
             if (event.getType() == LineEvent.Type.STOP) {
                 play.setEnabled(true);
+                stop.setEnabled(true);
+                audioComboBox.setEnabled(true);
                 rec.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("icons/1-Rec.png")));
+                timer.stop();
+                _resetTimer();
             }
             if (event.getType() == LineEvent.Type.CLOSE) {
                 
@@ -1002,7 +1034,6 @@ public class MainFrame extends javax.swing.JFrame
         play = new javax.swing.JButton();
         stop = new javax.swing.JButton();
         audioComboBox = new javax.swing.JComboBox<>();
-        audioTime = new javax.swing.JLabel();
         jSeparator12 = new javax.swing.JToolBar.Separator();
         rec = new javax.swing.JButton();
         recordingTime = new javax.swing.JLabel();
@@ -1027,12 +1058,15 @@ public class MainFrame extends javax.swing.JFrame
         redHighlightItemMenu = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         statusBarMenu = new javax.swing.JCheckBoxMenuItem();
+        helpMenu = new javax.swing.JMenu();
+        aboutItemMenu = new javax.swing.JMenuItem();
 
         FormListener formListener = new FormListener();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Práctica 13");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setPreferredSize(new java.awt.Dimension(1900, 900));
 
         toolBar.setRollover(true);
 
@@ -1465,9 +1499,6 @@ public class MainFrame extends javax.swing.JFrame
         audioComboBox.setPreferredSize(new java.awt.Dimension(150, 26));
         audioComboBox.addActionListener(formListener);
         jToolBar1.add(audioComboBox);
-
-        audioTime.setText("00:00");
-        jToolBar1.add(audioTime);
         jToolBar1.add(jSeparator12);
 
         rec.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Rec.png"))); // NOI18N
@@ -1565,6 +1596,14 @@ public class MainFrame extends javax.swing.JFrame
         viewMenu.add(statusBarMenu);
 
         menu.add(viewMenu);
+
+        helpMenu.setText("Ayuda");
+
+        aboutItemMenu.setText("Acerca de");
+        aboutItemMenu.addActionListener(formListener);
+        helpMenu.add(aboutItemMenu);
+
+        menu.add(helpMenu);
 
         setJMenuBar(menu);
 
@@ -1711,6 +1750,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == statusBarMenu) {
                 MainFrame.this.statusBarMenuActionPerformed(evt);
             }
+            else if (evt.getSource() == aboutItemMenu) {
+                MainFrame.this.aboutItemMenuActionPerformed(evt);
+            }
         }
 
         public void focusGained(java.awt.event.FocusEvent evt) {
@@ -1802,22 +1844,22 @@ public class MainFrame extends javax.swing.JFrame
     }// </editor-fold>//GEN-END:initComponents
 
     private void newMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newMenuActionPerformed
-        newCanvas();
+        _newCanvas();
     }//GEN-LAST:event_newMenuActionPerformed
 
     private void saveMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuActionPerformed
-        saveFile();
+        _saveFile();
     }//GEN-LAST:event_saveMenuActionPerformed
 
     private void openMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuActionPerformed
-        openFile();
+        _openFile();
     }//GEN-LAST:event_openMenuActionPerformed
 
     private void generalPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generalPathActionPerformed
         if(internalFrame != null)
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.GENERALPATH);
-        toolsSelectedToFalse();
+        _toolsSelectedToFalse();
         generalPath.setSelected(true);
         internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
                 java.awt.Cursor.CROSSHAIR_CURSOR));
@@ -1826,7 +1868,7 @@ public class MainFrame extends javax.swing.JFrame
     private void lineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineActionPerformed
         if(internalFrame != null)
             internalFrame.getCanvas2D().setActiveShape(Canvas2D.EnumShape.LINE);
-        toolsSelectedToFalse();
+        _toolsSelectedToFalse();
         line.setSelected(true);
         internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
                 java.awt.Cursor.CROSSHAIR_CURSOR));
@@ -1836,7 +1878,7 @@ public class MainFrame extends javax.swing.JFrame
         if(internalFrame != null)
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.RECTANGLE);
-        toolsSelectedToFalse();
+        _toolsSelectedToFalse();
         rectangle.setSelected(true);
         internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
                 java.awt.Cursor.CROSSHAIR_CURSOR));
@@ -1846,7 +1888,7 @@ public class MainFrame extends javax.swing.JFrame
         if(internalFrame != null)
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.ELLIPSE);
-        toolsSelectedToFalse();
+        _toolsSelectedToFalse();
         ellipse.setSelected(true);
         internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
                 java.awt.Cursor.CROSSHAIR_CURSOR));
@@ -1860,7 +1902,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_statusBarMenuActionPerformed
 
     private void selectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectorActionPerformed
-        toolsSelectedToFalse();
+        _toolsSelectedToFalse();
         if(internalFrame != null)
             internalFrame.getCanvas2D().setSelectorMode(true);
         selector.setSelected(true);
@@ -1894,15 +1936,15 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_colorsActionPerformed
 
     private void newCanvasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newCanvasActionPerformed
-        newCanvas();
+        _newCanvas();
     }//GEN-LAST:event_newCanvasActionPerformed
 
     private void openFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileActionPerformed
-        openFile();
+        _openFile();
     }//GEN-LAST:event_openFileActionPerformed
 
     private void saveCanvasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCanvasActionPerformed
-        this.saveFile();
+        this._saveFile();
     }//GEN-LAST:event_saveCanvasActionPerformed
 
     private void transparencyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transparencyActionPerformed
@@ -1920,7 +1962,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_transparencyActionPerformed
 
     private void tipOverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tipOverActionPerformed
-        tipOverShapes();
+        _tipOverShapes();
     }//GEN-LAST:event_tipOverActionPerformed
 
     private void windowsEffectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_windowsEffectActionPerformed
@@ -1932,7 +1974,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_windowsEffectActionPerformed
 
     private void newSizeImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newSizeImageActionPerformed
-        throwDialogMeassureAndSetImage(canvasWidth, canvasHeight);
+        _throwDialogMeassureAndSetImage(canvasWidth, canvasHeight);
         if(internalFrame != null)
             internalFrame.getCanvas2D().setImage(
                     internalFrame.getCanvas2D().getImage(false));
@@ -1967,8 +2009,8 @@ public class MainFrame extends javax.swing.JFrame
 
     private void brightnessSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_brightnessSliderFocusGained
         if(tipOverFilters.isSelected())
-            tipOverShapes();
-        this.swingControlsFocusGained();
+            _tipOverShapes();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_brightnessSliderFocusGained
 
     private void brightnessSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_brightnessSliderFocusLost
@@ -1979,7 +2021,7 @@ public class MainFrame extends javax.swing.JFrame
     private void filterComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterComboBoxActionPerformed
         if(internalFrame != null){
             try {
-                Kernel kernel = getKernelFromSelect(filterComboBox.getSelectedIndex());
+                Kernel kernel = _getKernelFromSelect(filterComboBox.getSelectedIndex());
                 ConvolveOp convolveOp = new ConvolveOp(kernel);
                 sourceImage = convolveOp.filter(internalFrame.getCanvas2D().getImage(false), null);
                 internalFrame.getCanvas2D().setImage(sourceImage);
@@ -1991,7 +2033,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_filterComboBoxActionPerformed
 
     private void filterComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_filterComboBoxFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_filterComboBoxFocusGained
 
     private void filterComboBoxFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_filterComboBoxFocusLost
@@ -1999,11 +2041,11 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_filterComboBoxFocusLost
 
     private void rotationSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rotationSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_rotationSliderFocusGained
 
     private void rotationSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_rotationSliderStateChanged
-        this.applyRotation(rotationSlider.getValue());
+        this._applyRotation(rotationSlider.getValue());
     }//GEN-LAST:event_rotationSliderStateChanged
 
     private void rotationSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rotationSliderFocusLost
@@ -2012,19 +2054,19 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_rotationSliderFocusLost
 
     private void scaleInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleInActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         this.scaleImage(1.25f, 1.25f);
         sourceImage = null;
     }//GEN-LAST:event_scaleInActionPerformed
 
     private void scaleOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleOutActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         this.scaleImage(0.75f, 0.75f);
         sourceImage = null;
     }//GEN-LAST:event_scaleOutActionPerformed
 
     private void quadraticFunctionSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_quadraticFunctionSliderFocusGained
 
     private void quadraticFunctionSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderFocusLost
@@ -2033,7 +2075,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionSliderFocusLost
 
     private void quadraticFunctionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quadraticFunctionSliderStateChanged
-        this.applyLookup(
+        this._applyLookup(
                 this.quadraticFunctionTable(quadraticFunctionSlider.getValue())
         );
     }//GEN-LAST:event_quadraticFunctionSliderStateChanged
@@ -2042,10 +2084,10 @@ public class MainFrame extends javax.swing.JFrame
         if(internalFrame != null){
             BufferedImage image = internalFrame.getCanvas2D().getImage(false);
             String title = internalFrame.getTitle(),
-                    extension = getExtension(title),
+                    extension = _getExtension(title),
                     duplicateTitle = title.replace("." + extension, "") 
                     + "-copia." + extension;
-            newCanvas();
+            _newCanvas();
             // Set a deep copy image to no modify both at the same time.
             internalFrame.getCanvas2D().setImage(
                     new BufferedImage(
@@ -2064,24 +2106,24 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_quadraticFunctionButtonActionPerformed
 
     private void bandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bandCombinationActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         float[][] matrix = {
             {0.0F, 0.5F, 0.5F},
             {0.5F, 0.0F, 0.5F},
             {0.5F, 0.5F, 0.0F}
         };
-        this.applyCombineOp(matrix);
+        this._applyCombineOp(matrix);
         sourceImage = null;
     }//GEN-LAST:event_bandCombinationActionPerformed
 
     private void greenBandCombinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_greenBandCombinationActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         float[][] matrix = {
             {0.0F, 0.6F, 0.4F},
             {0.0F, 1.0F, 0.0F},
             {0.0F, 0.0F, 1.0F}
         };
-        this.applyCombineOp(matrix);
+        this._applyCombineOp(matrix);
         sourceImage = null;
     }//GEN-LAST:event_greenBandCombinationActionPerformed
 
@@ -2096,12 +2138,12 @@ public class MainFrame extends javax.swing.JFrame
             if(image != null){
                 InternalFrame iF = null;
                 for(int i = 0; i < image.getRaster().getNumBands(); i++){
-                    BufferedImage bandImage = getImageBand(image, i);
+                    BufferedImage bandImage = _getImageBand(image, i);
                     
                     iF = new InternalFrame();
                     desktop.add(iF);
                     iF.setVisible(true);
-                    initializeCanvas(iF);
+                    _initializeCanvas(iF);
                     iF.getCanvas2D().setImage(bandImage);
                     iF.setTitle(title + " [banda " + i + "]");
                 }
@@ -2132,14 +2174,16 @@ public class MainFrame extends javax.swing.JFrame
                         break;
                 }
                 
-                if(colorSpace.getType() != sourceImage.getColorModel().getColorSpace().getType()){
+                int srcImgCSType = 
+                        sourceImage.getColorModel().getColorSpace().getType();
+                if(colorSpace != null && colorSpace.getType() != srcImgCSType){
                     ColorConvertOp op = new ColorConvertOp(colorSpace, null);
                     BufferedImage image = op.filter(sourceImage, null);
 
                     InternalFrame iF = new InternalFrame();
                     desktop.add(iF);
                     iF.setVisible(true);
-                    initializeCanvas(iF);
+                    _initializeCanvas(iF);
                     iF.getCanvas2D().setImage(image);
                     iF.setTitle(internalFrame.getTitle() + " [" + option + "]");
                     internalFrame = iF;
@@ -2162,7 +2206,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_tintActionPerformed
 
     private void sepiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sepiaActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             SepiaOp sepiaOp = new sm.image.SepiaOp();
             sepiaOp.filter(
@@ -2175,7 +2219,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_sepiaActionPerformed
 
     private void equalizationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_equalizationActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             EqualizationOp equalizationOp = new sm.image.EqualizationOp();
             equalizationOp.filter(
@@ -2187,7 +2231,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_equalizationActionPerformed
 
     private void posterizeSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_posterizeSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_posterizeSliderFocusGained
 
     private void posterizeSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_posterizeSliderFocusLost
@@ -2217,14 +2261,14 @@ public class MainFrame extends javax.swing.JFrame
 
             switch(option){
                 case "Prác. 10: Umbral":
-                    this.applyLookup(this.thresholdFunctionTable(127));
+                    this._applyLookup(this.thresholdFunctionTable(127));
                     break;
             }
         }   
     }//GEN-LAST:event_challengesComboBoxActionPerformed
 
     private void challengesComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_challengesComboBoxFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_challengesComboBoxFocusGained
 
     private void challengesComboBoxFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_challengesComboBoxFocusLost
@@ -2239,7 +2283,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_rotationButtonActionPerformed
 
     private void tintItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tintItemMenuActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             AutoTintOp tintOp = new AutoTintOp(
                     (Color)colors.getSelectedItem()
@@ -2254,7 +2298,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_tintItemMenuActionPerformed
 
     private void tintSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tintSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_tintSliderFocusGained
 
     private void tintSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tintSliderFocusLost
@@ -2277,7 +2321,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_tintSliderStateChanged
 
     private void redHighlightItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redHighlightItemMenuActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             RedOp redOp = new RedOp(240);
             redOp.filter(
@@ -2290,7 +2334,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_redHighlightItemMenuActionPerformed
 
     private void redHighlightSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_redHighlightSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_redHighlightSliderFocusGained
 
     private void redHighlightSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_redHighlightSliderFocusLost
@@ -2314,7 +2358,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_posterizeButtonActionPerformed
 
     private void contrastComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contrastComboBoxActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             LookupTable lookupTable = null;
             switch(contrastComboBox.getSelectedIndex()){
@@ -2344,13 +2388,13 @@ public class MainFrame extends javax.swing.JFrame
                     break;
             }
             if(lookupTable != null)
-                this.applyLookup(lookupTable);
+                this._applyLookup(lookupTable);
             sourceImage = null;
         }
     }//GEN-LAST:event_contrastComboBoxActionPerformed
 
     private void ownOperatorSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownOperatorSliderFocusGained
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
     }//GEN-LAST:event_ownOperatorSliderFocusGained
 
     private void ownOperatorSliderFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownOperatorSliderFocusLost
@@ -2374,7 +2418,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_ownOperatorButtonActionPerformed
 
     private void autoTintOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoTintOpActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             AutoTintOp tintOp = new AutoTintOp(
                     (Color)colors.getSelectedItem()
@@ -2389,7 +2433,7 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_autoTintOpActionPerformed
 
     private void histogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_histogramActionPerformed
-        this.swingControlsFocusGained();
+        this._swingControlsFocusGained();
         if(sourceImage != null){
             sm.image.Histogram histogram = new sm.image.Histogram(sourceImage);
             System.out.println(histogram.getNormalizedHistogram(0)[0]);
@@ -2416,7 +2460,6 @@ public class MainFrame extends javax.swing.JFrame
     private void stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopActionPerformed
         if(player != null){
             player.stop();
-            player = null;
         }
     }//GEN-LAST:event_stopActionPerformed
 
@@ -2430,26 +2473,38 @@ public class MainFrame extends javax.swing.JFrame
 
     private void recActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recActionPerformed
         if(recorder == null){
-            this.saveFile();
-            File f = (File) audioComboBox.getSelectedItem();
-            if (f != null) {
-                recorder = new SMSoundRecorder(f);
-                recorder.addLineListener(recordListener);
-                if(recorder != null){
-                    recorder.record();
-                } 
+            try {
+                recordingFile = File.createTempFile("auxRecord", ".tmp");
+            } catch (IOException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            recorder = new SMSoundRecorder(recordingFile);
+            recorder.addLineListener(recordListener);
+            recorder.record();
         }else{
             recorder.stop();
             recorder = null;
-            this.resetTimer();
+            this._saveFile();
+//            this.resetTimer();
+            recordingFile = null;
         }
     }//GEN-LAST:event_recActionPerformed
+
+    private void aboutItemMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutItemMenuActionPerformed
+        JOptionPane.showMessageDialog(
+                        null, 
+                        "Programa: Aplicación multimedia\n"
+                        + "Version: 1.15\n"
+                        + "Autor: Antonio Jiménez Rodríguez\n",
+                        "Información",
+                        JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_aboutItemMenuActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutItemMenu;
     private javax.swing.JToggleButton antialiasing;
     private javax.swing.JComboBox<File> audioComboBox;
-    private javax.swing.JLabel audioTime;
     private javax.swing.JButton autoTintOp;
     private javax.swing.JButton bandCombination;
     private javax.swing.JButton bandExtractor;
@@ -2472,6 +2527,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JLabel firstRotationLabel;
     private javax.swing.JToggleButton generalPath;
     private javax.swing.JButton greenBandCombination;
+    private javax.swing.JMenu helpMenu;
     private javax.swing.JButton histogram;
     private javax.swing.JMenu imageMenu;
     private javax.swing.JLabel jLabel2;

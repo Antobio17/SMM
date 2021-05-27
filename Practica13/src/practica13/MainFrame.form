@@ -236,7 +236,7 @@
         <Component class="javax.swing.JToggleButton" name="generalPath">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/icons/1-Pencil.png"/>
+              <Image iconType="3" name="/icons/1-Draw.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Dibujar libre"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -301,7 +301,7 @@
         <Component class="javax.swing.JToggleButton" name="selector">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/icons/1-Move.png"/>
+              <Image iconType="3" name="/icons/1-Edit.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Mover figura"/>
             <Property name="focusable" type="boolean" value="false"/>

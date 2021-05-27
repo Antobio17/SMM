@@ -7,7 +7,9 @@ package practica13;
 
 import sm.ajr.iu.Canvas2D;
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -49,6 +51,8 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import sm.ajr.graphics.AJRFillShape2D;
+import sm.ajr.graphics.AJRShape2D;
 import sm.ajr.image.AutoTintOp;
 import sm.ajr.image.OwnOp;
 import sm.ajr.image.PosterizeOp;
@@ -744,10 +748,10 @@ public class MainFrame extends javax.swing.JFrame
     }
     
     /**
-     * Funcion para clonar el buffer de un archivo.
+     * Función para clonar el buffer de un archivo.
      * 
-     * @param source Archivo fuente a clonar de tipo File.
-     * @param dest Archivo destino al que aplicar la clonacion de tipo File.
+     * @param source File: archivo fuente a clonar de tipo File.
+     * @param dest File: archivo destino al que aplicar la clonacion de tipo File.
      * @throws IOException 
      */
     private static void _cloneFile(File source, File dest) throws IOException {
@@ -779,10 +783,32 @@ public class MainFrame extends javax.swing.JFrame
          * @param e 
          */
         @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("mouseClicked");
+            _mouseActionClick();
+        }
+        
+        /**
+         * 
+         * @param e 
+         */
+        @Override
+        public void mousePressed(MouseEvent e)
+        {
+            System.out.println("mousePressed");
+            _mouseActionClick();
+        }
+        
+        /**
+         * 
+         * @param e 
+         */
+        @Override
         public void mouseMoved(MouseEvent e)
         {
             if(internalFrame != null){
-                setStatusBarText(e.getPoint());
+                _setStatusBarText(e.getPoint());
                 if(windowsEffect.isSelected()){
                     internalFrame.getCanvas2D().setWindowsEffectPosition(
                             e.getPoint());
@@ -799,7 +825,7 @@ public class MainFrame extends javax.swing.JFrame
         public void mouseDragged(MouseEvent e)
         {
             if(internalFrame != null){
-                setStatusBarText(e.getPoint());
+                _setStatusBarText(e.getPoint());
                 if (windowsEffect.isSelected()) {
                     internalFrame.getCanvas2D().setWindowsEffectPosition(
                             e.getPoint());
@@ -808,7 +834,7 @@ public class MainFrame extends javax.swing.JFrame
             }
         }
         
-        private void setStatusBarText(Point p)
+        private void _setStatusBarText(Point p)
         {
             statusBarVariable.setText(
                     "Coordenadas: ( " + (int)p.getX() + ", " +
@@ -831,6 +857,37 @@ public class MainFrame extends javax.swing.JFrame
                         "  RGB: Fuera de Imagen"
                 );
             }           
+        }
+        
+        private void _mouseActionClick()
+        {
+            if(internalFrame != null && selector.isSelected()){
+                AJRShape2D shape = internalFrame.getCanvas2D().getActualShape();
+                if(shape != null){
+                    Composite transparencyComposite =
+                            AlphaComposite.getInstance(
+                                    AlphaComposite.SRC_OVER, 0.5f
+                            );
+                    // Set the color in MainFrame and Canvas
+                    colors.setSelectedItem(shape.getColor());
+                    internalFrame.getCanvas2D().setActiveColor(shape.getColor());
+                    // Set the transparency in MainFrame and Canvas
+                    boolean isTransparency = 
+                            shape.getComposite().equals(transparencyComposite);
+                    transparency.setSelected(isTransparency);
+                    internalFrame.getCanvas2D().setTransparencyMode(isTransparency);
+                    // Set the antialiasing in MainFrame and Canvas
+                    antialiasing.setSelected(shape.getHasAntialiasing());
+                    internalFrame.getCanvas2D().setAntialiasingMode(
+                            shape.getHasAntialiasing()
+                    );
+                    // Set the widthStroke in MainFrame and Canvas
+                    widthStroke.setValue((int)shape.getStroke().getLineWidth());
+                    internalFrame.getCanvas2D().setWidthStroke(
+                            (int)shape.getStroke().getLineWidth()
+                    );
+                }
+            }
         }
         
     }
@@ -1095,7 +1152,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(saveCanvas);
         toolBar.add(separator2);
 
-        generalPath.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Pencil.png"))); // NOI18N
+        generalPath.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Draw.png"))); // NOI18N
         generalPath.setToolTipText("Dibujar libre");
         generalPath.setFocusable(false);
         generalPath.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -1130,7 +1187,7 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(ellipse);
         ellipse.getAccessibleContext().setAccessibleDescription("Elipse");
 
-        selector.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Move.png"))); // NOI18N
+        selector.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Edit.png"))); // NOI18N
         selector.setToolTipText("Mover figura");
         selector.setFocusable(false);
         selector.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -1856,42 +1913,53 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_openMenuActionPerformed
 
     private void generalPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generalPathActionPerformed
-        if(internalFrame != null)
-            internalFrame.getCanvas2D().setActiveShape(
-                    Canvas2D.EnumShape.GENERALPATH);
         _toolsSelectedToFalse();
         generalPath.setSelected(true);
-        internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
-                java.awt.Cursor.CROSSHAIR_CURSOR));
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActiveShape(
+                    Canvas2D.EnumShape.GENERALPATH
+            );
+            internalFrame.getCanvas2D().setCursor(
+                    new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR)
+            );
+        }
     }//GEN-LAST:event_generalPathActionPerformed
 
     private void lineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineActionPerformed
-        if(internalFrame != null)
-            internalFrame.getCanvas2D().setActiveShape(Canvas2D.EnumShape.LINE);
         _toolsSelectedToFalse();
         line.setSelected(true);
-        internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
-                java.awt.Cursor.CROSSHAIR_CURSOR));
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActiveShape(Canvas2D.EnumShape.LINE);
+            internalFrame.getCanvas2D().setCursor(
+                    new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR)
+            );
+        }
     }//GEN-LAST:event_lineActionPerformed
 
     private void rectangleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rectangleActionPerformed
-        if(internalFrame != null)
-            internalFrame.getCanvas2D().setActiveShape(
-                    Canvas2D.EnumShape.RECTANGLE);
         _toolsSelectedToFalse();
         rectangle.setSelected(true);
-        internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
-                java.awt.Cursor.CROSSHAIR_CURSOR));
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActiveShape(
+                    Canvas2D.EnumShape.RECTANGLE
+            );
+            internalFrame.getCanvas2D().setCursor(
+                    new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR)
+            );
+        }
     }//GEN-LAST:event_rectangleActionPerformed
 
     private void ellipseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ellipseActionPerformed
-        if(internalFrame != null)
-            internalFrame.getCanvas2D().setActiveShape(
-                    Canvas2D.EnumShape.ELLIPSE);
         _toolsSelectedToFalse();
         ellipse.setSelected(true);
-        internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
-                java.awt.Cursor.CROSSHAIR_CURSOR));
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActiveShape(
+                    Canvas2D.EnumShape.ELLIPSE
+            );
+            internalFrame.getCanvas2D().setCursor(
+                    new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR)
+            );
+        }
     }//GEN-LAST:event_ellipseActionPerformed
 
     private void statusBarMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBarMenuActionPerformed
@@ -1903,24 +1971,54 @@ public class MainFrame extends javax.swing.JFrame
 
     private void selectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectorActionPerformed
         _toolsSelectedToFalse();
-        if(internalFrame != null)
-            internalFrame.getCanvas2D().setSelectorMode(true);
         selector.setSelected(true);
-        internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
-                java.awt.Cursor.MOVE_CURSOR));
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActualShape(null);
+            internalFrame.getCanvas2D().setSelectorMode(true);
+            internalFrame.getCanvas2D().setCursor(
+                    new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)
+            );
+        }
     }//GEN-LAST:event_selectorActionPerformed
 
     private void fillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fillActionPerformed
-        if(internalFrame != null)
-                internalFrame.getCanvas2D().setFillMode(fill.isSelected());
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setFillMode(fill.isSelected());
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                if(actualShape instanceof AJRFillShape2D){
+                    ((AJRFillShape2D)actualShape).setIsFill(fill.isSelected());
+                }
+            }    
+        }
+        desktop.repaint();
     }//GEN-LAST:event_fillActionPerformed
 
     private void widthStrokeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_widthStrokeStateChanged
         if((int)widthStroke.getValue() < 1)
             widthStroke.setValue(1);
-        else if(internalFrame != null)
+        else if(internalFrame != null){
             internalFrame.getCanvas2D().setWidthStroke(
-                    (int)widthStroke.getValue());
+                    (int)widthStroke.getValue()
+            );
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                float dash[] = null;
+                actualShape.setStroke(
+                        new BasicStroke(
+                                (int)widthStroke.getValue(),
+                                BasicStroke.CAP_ROUND,
+                                BasicStroke.JOIN_MITER,
+                                1.0f,
+                                dash,
+                                0.0f
+                        )
+                );
+            }
+        }
+        desktop.repaint();
     }//GEN-LAST:event_widthStrokeStateChanged
 
     private void antialiasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_antialiasingActionPerformed

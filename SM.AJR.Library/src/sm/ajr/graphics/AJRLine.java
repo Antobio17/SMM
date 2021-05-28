@@ -26,7 +26,7 @@ public class AJRLine extends AJRShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Create new form AJRLine
+     * Crear nuevo objeto AJRLine
      * 
      */
     public AJRLine() 
@@ -36,6 +36,19 @@ public class AJRLine extends AJRShape2D
     }
     
     /*************************** GETTER AND SETTER ***************************/
+    
+    /***************************** PUBLIC METHODS ****************************/
+    
+    /**
+     * 
+     * @param g2d 
+     */
+    @Override
+    public void paint(Graphics2D g2d) 
+    {
+        super.paint(g2d);
+        g2d.draw(line);
+    }
     
     /**
      * 
@@ -59,8 +72,6 @@ public class AJRLine extends AJRShape2D
         return (Point2D)line.getP1();
     }
     
-    /***************************** PUBLIC METHODS ****************************/
-    
     /**
      * 
      * @param p
@@ -69,27 +80,6 @@ public class AJRLine extends AJRShape2D
     public boolean contains(Point2D p) 
     {
         return isNear(p);
-    }
-    
-    /**
-     * 
-     * @param p
-     * @return boolean 
-     */
-    public boolean isNear(Point2D p)
-    {
-        return line.ptLineDist(p) <= 3.0;
-    }
-    
-    /**
-     * 
-     * @param g2d 
-     */
-    @Override
-    public void paint(Graphics2D g2d) 
-    {
-        super.paint(g2d);
-        g2d.draw(line);
     }
     
     /**
@@ -116,6 +106,18 @@ public class AJRLine extends AJRShape2D
     {
         super.createShape(initPoint, color, hasAntialiasing, composite, stroke);
         line = new Line2D.Float(initPoint, initPoint);
+    }
+    
+    /**
+     * Método para saber si un punto está cerda de la línea.
+     * 
+     * @param p Point2D: punto a checkear.
+     * 
+     * @return boolean si el punto está cerca de la línea o no.
+     */
+    public boolean isNear(Point2D p)
+    {
+        return line.ptLineDist(p) <= 3.0;
     }
     
     /***************************** PRIVARE METHODS ***************************/

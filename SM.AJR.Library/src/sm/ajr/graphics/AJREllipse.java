@@ -27,7 +27,7 @@ public class AJREllipse extends AJRFillShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Creates new form AJREllipse
+     * Crear nuevo objeto AJREllipse
      * 
      */
     public AJREllipse(){
@@ -38,6 +38,21 @@ public class AJREllipse extends AJRFillShape2D
     }
     
     /*************************** GETTER AND SETTER ***************************/
+    
+    /***************************** PUBLIC METHODS ****************************/
+    
+    /**
+     * 
+     * @param g2d 
+     */
+    public void paint(Graphics2D g2d) 
+    {
+        super.paint(g2d);
+        if(this.getIsFill())
+            g2d.fill(ellipse);
+        else
+            g2d.draw(ellipse);
+    }
     
     /**
      * 
@@ -58,33 +73,6 @@ public class AJREllipse extends AJRFillShape2D
     public Point2D getLocation() 
     {
         return initialPoint;
-    }
-    
-    /***************************** PUBLIC METHODS ****************************/
-    
-    /**
-     * 
-     * @param p1
-     * @param p2 
-     */
-    public void setFrameFromDiagonal(Point2D p1, Point2D p2)
-    {
-        endPoint = p2;
-        ellipse.setFrameFromDiagonal(
-                p1.getX(), p1.getY(), p2.getX(), p2.getY());
-    }
-    
-    /**
-     * 
-     * @param g2d 
-     */
-    public void paint(Graphics2D g2d) 
-    {
-        super.paint(g2d);
-        if(this.getIsFill())
-            g2d.fill(ellipse);
-        else
-            g2d.draw(ellipse);
     }
     
     /**
@@ -120,9 +108,24 @@ public class AJREllipse extends AJRFillShape2D
     {
         super.createShape(initPoint, color, hasAntialiasing, composite, stroke);
         ellipse = new Ellipse2D.Float(
-                (float)initPoint.getX(), (float)initPoint.getY(), 0, 0);
+                (float)initPoint.getX(), (float)initPoint.getY(), 0, 0
+        );
         initialPoint = initPoint;
         endPoint = initPoint;
+    }
+    
+    /**
+     * Establece la diagonal del rectángulo de encuadre de la elipse.
+     * 
+     * @param p1 Point2D: punto inicial de la diagonal.
+     * @param p2 Point2D: punto final de la diagonal.
+     */
+    public void setFrameFromDiagonal(Point2D p1, Point2D p2)
+    {
+        endPoint = p2;
+        ellipse.setFrameFromDiagonal(
+                p1.getX(), p1.getY(), p2.getX(), p2.getY()
+        );
     }
     
     /***************************** PRIVARE METHODS ***************************/

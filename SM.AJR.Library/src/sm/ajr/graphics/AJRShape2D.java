@@ -30,7 +30,7 @@ public abstract class AJRShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Create new form AJRShape2D
+     * Crear nuevo objeto AJRShape2D
      */
     public AJRShape2D()
     {
@@ -43,9 +43,9 @@ public abstract class AJRShape2D
     /*************************** GETTER AND SETTER ***************************/
     
     /**
-     * Sets the color of the shape.
+     * Establece la propiedad Color de la figura.
      * 
-     * @param color 
+     * @param color Color: color a establecer.
      */
     public void setColor(Color color)
     {
@@ -53,9 +53,9 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Gets the actual color of the shape.
+     * Obtiene la propiedad Color de la figura.
      * 
-     * @return Color
+     * @return Color color de la figura.
      */
     public Color getColor()
     {
@@ -64,9 +64,9 @@ public abstract class AJRShape2D
     
     
     /**
-     * Sets the width stroke of the shape.
+     * Establece la propiedad Stroke de la figura.
      * 
-     * @param stroke 
+     * @param stroke BasicStroke: trazo a establecer.
      */
     public void setStroke(BasicStroke stroke)
     {
@@ -74,9 +74,9 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Gets the width stroke of the shape.
+     * Establece la propiedad Stroke de la figura.
      * 
-     * @return BasicStroke 
+     * @return BasicStroke trazo de la figura 
      */
     public BasicStroke getStroke()
     {
@@ -84,9 +84,9 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Sets the antialiasing condition of the shape.
+     * Establece la propiedad HasAntialiasing de la figura.
      * 
-     * @param hasAntialiasing 
+     * @param hasAntialiasing Boolean: booleano a establecer
      */
     public void setHasAntialiasing(boolean hasAntialiasing)
     {
@@ -94,9 +94,9 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Gets the actual antialiasing condition of the shape.
+     * Obtiene la propiedad HasAntialiasing de la figura.
      * 
-     * @return boolean 
+     * @return boolean si la figura está o no alisada
      */
     public boolean getHasAntialiasing()
     {
@@ -104,9 +104,9 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Sets the composite of the shape to apply the transparency.
+     * Establece la propiedad Composite de la figura.
      * 
-     * @param composite 
+     * @param composite Composite: compuesto para aplicar transparencia
      */
     public void setComposite(Composite composite)
     {
@@ -114,36 +114,21 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Gets the composite of the shape to get the transparency.
+     * Obtiene la propiedad Composite de la figura.
      * 
-     * @return 
+     * @return Composite compuesto de la figura para la transparencia.
      */
     public Composite getComposite()
     {
         return this.composite;
     }
     
-    /**
-     * Sets the location of the shape.
-     * 
-     * @param x
-     * @param y
-     */
-    public abstract void setLocation(float x, float y); 
-    
-    /**
-     * Gets the location of the shape.
-     * 
-     * @return Point2D
-     */
-    public abstract Point2D getLocation();
-    
     /***************************** PUBLIC METHODS ****************************/
     
     /**
-     * Method to paint the shape in the canvas.
+     * Método para pintar una figura en el lienzo.
      * 
-     * @param g2d 
+     * @param g2d Graphics2D: objeto para pintar figuras en el liezo.
      */
     public void paint(Graphics2D g2d)
     {
@@ -161,29 +146,45 @@ public abstract class AJRShape2D
     }
     
     /**
-     * Methods to know if the point p it is contains in the shape.
+     * Método para establecer la localización de la figura.
      * 
-     * @param p
-     * @return boolean
+     * @param x int: Valor x de las coordenadas.
+     * @param y int: Valor y de las coordenadas.
+     */
+    public abstract void setLocation(float x, float y); 
+    
+    /**
+     * Método para obtener la localización de la figura.
+     * 
+     * @return Point2D punto donde se encuentra la figura.
+     */
+    public abstract Point2D getLocation();
+    
+    /**
+     * Método para saber si un punto P está contenido en la figura.
+     * 
+     * @param p Point2D: punto a checkear.
+     * 
+     * @return boolean si el punto está o no contenido.
      */
     public abstract boolean contains(Point2D p);
     
     /**
-     * Method to update the form of the shape while dragging.
+     * Método para actualizar el tamaño de la figura.
      * 
-     * @param initPoint
-     * @param endPoint 
+     * @param initPoint Point2D: punto donde empieza la figura.
+     * @param endPoint Point2D: punto donde termina la figura.
      */
     public abstract void updateShape(Point2D initPoint, Point2D endPoint);
     
     /**
-     * Method to create a new shape.
+     * Método para crear una nueva figura (establecer sus propiedades).
      * 
-     * @param initPoint
-     * @param color
-     * @param hasAntialiasing
-     * @param composite
-     * @param stroke
+     * @param initPoint Point2D: punto donde empieza la figura
+     * @param color Color: color de la figura.
+     * @param hasAntialiasing Boolean: si la figura es lisa o no.
+     * @param composite Composite: composición de la figura para la transparencia.
+     * @param stroke BasicStroke: trazo de la figura.
      */
     public void createShape(Point2D initPoint, Color color,
             boolean hasAntialiasing, Composite composite, BasicStroke stroke)

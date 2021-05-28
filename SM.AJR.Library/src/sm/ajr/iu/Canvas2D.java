@@ -14,10 +14,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,7 @@ public class Canvas2D extends javax.swing.JPanel {
     
     /* Stroke */
     float widthStroke;
-    float discontinuityPattern[];
+    float[] dash;
     float disPatternClipArea[] = {5.0f, 5.0f};
 
     /* Image */
@@ -310,6 +308,27 @@ public class Canvas2D extends javax.swing.JPanel {
         return this.activeComposite;
     }
     
+    /**
+     * Establece la figura actual selecccionada en el lienzo.
+     * 
+     * @param actualShape AJRShape2D figura a setear.
+     */
+    public void setActualShape(AJRShape2D actualShape)
+    {
+        this.actualShape = actualShape;
+    }
+    
+    /**
+     * Obtiene la figura actual seleccionada en el lienzo.
+     * 
+     * @return AJRShape2D figura actual seleccionada | null en caso de no 
+     * haber ninguna figura seleccionada.
+     */
+    public AJRShape2D getActualShape()
+    {
+        return this.actualShape;
+    }
+    
     /***************************** PUBLIC METHODS ****************************/
     
     /**
@@ -328,7 +347,7 @@ public class Canvas2D extends javax.swing.JPanel {
             g2d.draw(windowsEffect);
         }
         g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
-        this.setClipArea(g2d);
+        this._setClipArea(g2d);
         
         for(AJRShape2D s:vShape){
             s.paint(g2d);
@@ -354,7 +373,7 @@ public class Canvas2D extends javax.swing.JPanel {
     public void clearShapesArray()
     {
         vShape.clear();
-    }
+    } 
     
     /***************************** PRIVARE METHODS ***************************/
     
@@ -365,7 +384,7 @@ public class Canvas2D extends javax.swing.JPanel {
      * 
      * @return AJRShape|null
      */
-    private AJRShape2D getSelectedShape(Point2D p)
+    private AJRShape2D _getSelectedShape(Point2D p)
     {
         for(AJRShape2D s:vShape){
             if(s.contains(p)){
@@ -398,7 +417,7 @@ public class Canvas2D extends javax.swing.JPanel {
      * 
      * @param g2d 
      */
-    private void setClipArea(Graphics2D g2d)
+    private void _setClipArea(Graphics2D g2d)
     {
         // Sets the discontinue stroke of the clip area
         g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, 
@@ -434,6 +453,9 @@ public class Canvas2D extends javax.swing.JPanel {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 formMouseReleased(evt);
             }
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
         });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -455,7 +477,7 @@ public class Canvas2D extends javax.swing.JPanel {
             movingPoint = evt.getPoint();
             BasicStroke stroke = new BasicStroke(widthStroke,
                                 BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER,
-                                1.0f, discontinuityPattern, 0.0f);
+                                1.0f, dash, 0.0f);
             if(!selectorMode){
                 switch (activeShape){
                     case GENERALPATH:
@@ -473,11 +495,13 @@ public class Canvas2D extends javax.swing.JPanel {
                         ((AJREllipse)actualShape).setIsFill(fillMode);
                         break;
                 }
-                actualShape.createShape(initialPoint, activeColor, antialiasingMode,
-                        activeComposite, stroke);    
+                actualShape.createShape(
+                        initialPoint, activeColor, antialiasingMode,
+                        activeComposite, stroke
+                );    
                 vShape.add(actualShape);
             }else{
-                actualShape = getSelectedShape(movingPoint);
+                actualShape = _getSelectedShape(movingPoint);
             }
         }
     }//GEN-LAST:event_formMousePressed
@@ -504,6 +528,11 @@ public class Canvas2D extends javax.swing.JPanel {
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
         repaint();
     }//GEN-LAST:event_formMouseReleased
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        if(selectorMode)
+            actualShape = _getSelectedShape(evt.getPoint());
+    }//GEN-LAST:event_formMouseClicked
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

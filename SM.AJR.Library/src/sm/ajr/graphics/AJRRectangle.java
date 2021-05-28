@@ -26,7 +26,7 @@ public class AJRRectangle extends AJRFillShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Create new form AJRRectangle
+     * Crear nuevo objeto AJRRectangle
      * 
      */
     public AJRRectangle() 
@@ -36,12 +36,12 @@ public class AJRRectangle extends AJRFillShape2D
     }
     
     /**
-     * Create new form AJRRectangle
+     * Crear nuevo objeto AJRRectangle
      * 
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param x int: coordenada x de donde se situa el principio del rectángulo.
+     * @param y int: coordenada y de donde se situa el principio del rectángulo.
+     * @param width int: ancho del rectángulo.
+     * @param height int: alto del rectángulo.
      */
     public AJRRectangle(int x, int y, int width, int height) 
     {
@@ -50,6 +50,21 @@ public class AJRRectangle extends AJRFillShape2D
     }
     
     /*************************** GETTER AND SETTER ***************************/
+  
+    /***************************** PUBLIC METHODS ****************************/
+    
+    /**
+     * 
+     * @param g2d 
+     */
+    public void paint(Graphics2D g2d) 
+    {
+        super.paint(g2d);
+        if(this.getIsFill())
+            g2d.fill(rectangle);
+        else
+            g2d.draw(rectangle);
+    }
     
     /**
      * 
@@ -69,8 +84,6 @@ public class AJRRectangle extends AJRFillShape2D
     {
         return (Point2D)rectangle.getLocation();
     }
-  
-    /***************************** PUBLIC METHODS ****************************/
     
     /**
      * 
@@ -80,19 +93,6 @@ public class AJRRectangle extends AJRFillShape2D
     public boolean contains(Point2D p) 
     {
         return rectangle.contains(p);
-    }
-    
-    /**
-     * 
-     * @param g2d 
-     */
-    public void paint(Graphics2D g2d) 
-    {
-        super.paint(g2d);
-        if(this.getIsFill())
-            g2d.fill(rectangle);
-        else
-            g2d.draw(rectangle);
     }
     
     /**

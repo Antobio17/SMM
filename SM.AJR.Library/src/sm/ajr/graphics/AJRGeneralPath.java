@@ -30,7 +30,7 @@ public class AJRGeneralPath extends AJRShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Creates new form AJRGeneralPath
+     * Crear nuevo objeto AJRGeneralPath
      * 
      */
     public AJRGeneralPath() 
@@ -44,8 +44,7 @@ public class AJRGeneralPath extends AJRShape2D
     /***************************** PUBLIC METHODS ****************************/
     
     /**
-     * 
-     * @param g2d 
+     * {@inheritDoc}
      */
     @Override
     public void paint(Graphics2D g2d) 
@@ -54,6 +53,9 @@ public class AJRGeneralPath extends AJRShape2D
         g2d.draw(generalPath);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setLocation(float x, float y) 
     {
@@ -69,7 +71,7 @@ public class AJRGeneralPath extends AJRShape2D
     @Override
     public boolean contains(Point2D p) 
     {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return false;
     }
     
     /**
@@ -84,10 +86,12 @@ public class AJRGeneralPath extends AJRShape2D
         for (int i = 1; i < coordsPath.size(); i++) {
             generalPath.moveTo(
                     coordsPath.get(i).getX(),
-                    coordsPath.get(i).getY());
+                    coordsPath.get(i).getY()
+            );
             generalPath.lineTo(
                     coordsPath.get(i).getX(),
-                    coordsPath.get(i).getY());
+                    coordsPath.get(i).getY()
+            );
         }
     }
     
@@ -113,10 +117,10 @@ public class AJRGeneralPath extends AJRShape2D
     /***************************** STATIC METHODS ****************************/
     
     /**
-     * Gets the non-zero winding rule for determining the interior of a
-     * path.
+     * Obtiene la propiedad WIND_NON_ZERO de Path2D para determinar el interior
+     * de un camino.
      * 
-     * @return static final int
+     * @return static final int WIND_NON_ZERO
      */
     public static final int getWindNonZero()
     {

@@ -5,8 +5,6 @@
  */
 package sm.ajr.graphics;
 
-import java.awt.Graphics2D;
-
 /**
  *
  * @author Antonio Jiménez Rodríguez
@@ -21,7 +19,7 @@ public abstract class AJRFillShape2D extends AJRShape2D
     /******************************* CONSTRUCTS ******************************/
     
     /**
-     * Create new form AJRShape2D
+     * Crear nuevo objeto AJRShape2D
      */
     public AJRFillShape2D() 
     {
@@ -32,9 +30,9 @@ public abstract class AJRFillShape2D extends AJRShape2D
     /*************************** GETTER AND SETTER ***************************/
     
     /**
-     * Sets the fill condition of the shape.
+     * Establece la propiedad IsFill de la figura.
      * 
-     * @param isFill 
+     * @param isFill Boolean: si la figura está rellena o no.
      */
     public void setIsFill(boolean isFill)
     {
@@ -42,9 +40,9 @@ public abstract class AJRFillShape2D extends AJRShape2D
     }
     
     /**
-     * Gets the fill condition of the shape.
+     * Obtiene la propiedad IsFill de la figura.
      * 
-     * @return boolean 
+     * @return boolean si la figura está rellena o no.
      */
     public boolean getIsFill()
     {

@@ -38,8 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -147,7 +145,7 @@ public class MainFrame extends javax.swing.JFrame
     
     InternalFrame internalFrame = null;
     InternalFrameHandler internalFrameListener = null;
-    MouseMotionHandler mouseMotionListener = null;
+    MouseHandler mouseListener = null;
     Color colorsArray[] = {
         Color.BLACK, Color.WHITE, Color.RED, Color.YELLOW, Color.BLUE, Color.GREEN 
     };
@@ -184,7 +182,7 @@ public class MainFrame extends javax.swing.JFrame
         widthStroke.setValue(1);
         internalFrame = null;
         internalFrameListener = new InternalFrameHandler();
-        mouseMotionListener = new MouseMotionHandler();
+        mouseListener = new MouseHandler();
         canvasWidth = 700;
         canvasHeight = 600;
         brightnessSlider.setValue(0);
@@ -371,6 +369,9 @@ public class MainFrame extends javax.swing.JFrame
      */
     private void _newCanvas()
     {
+        // Dialog to set meassure of the canvas
+        _throwDialogMeassureAndSetImage(canvasWidth, canvasHeight);
+        
         InternalFrame iF = new InternalFrame();
         desktop.add(iF);
         iF.setVisible(true);
@@ -406,7 +407,8 @@ public class MainFrame extends javax.swing.JFrame
                     internalFrame = iF;
                     // Dialog to set meassure of the canvas
                     _throwDialogMeassureAndSetImage(
-                            image.getWidth(), image.getHeight());
+                            image.getWidth(), image.getHeight()
+                    );
                     iF.getCanvas2D().setImage(image);
                 }else if(this._isAudio(dlg.getSelectedFile())){
                     File file = new File(dlg.getSelectedFile().getPath()) {
@@ -524,7 +526,8 @@ public class MainFrame extends javax.swing.JFrame
     {
         // Assign the listeners
         iF.addInternalFrameListener(internalFrameListener);
-        iF.getCanvas2D().addMouseMotionListener(mouseMotionListener);
+        iF.getCanvas2D().addMouseListener(mouseListener);
+        iF.getCanvas2D().addMouseMotionListener(mouseListener);
         
         // Initialize the options
         iF.getCanvas2D().setCursor(
@@ -684,11 +687,19 @@ public class MainFrame extends javax.swing.JFrame
             try{
                 if(sourceImage != null){
                     double radians = Math.toRadians(degrees);
-                    Point p = new Point(sourceImage.getWidth()/2, sourceImage.getHeight()/2);
-                    AffineTransform at = AffineTransform.getRotateInstance(radians, p.x, p.y);
+                    Point p = new Point(
+                            sourceImage.getWidth()/2, sourceImage.getHeight()/2
+                    );
+                    AffineTransform at = AffineTransform.getRotateInstance(
+                            radians, p.x, p.y
+                    );
                     AffineTransformOp atop;
-                    atop = new AffineTransformOp(at,AffineTransformOp.TYPE_BILINEAR);
-                    internalFrame.getCanvas2D().setImage(atop.filter(sourceImage, null));
+                    atop = new AffineTransformOp(
+                            at,AffineTransformOp.TYPE_BILINEAR
+                    );
+                    internalFrame.getCanvas2D().setImage(
+                            atop.filter(sourceImage, null)
+                    );
                     desktop.repaint();
                 }
             } catch(IllegalArgumentException e){
@@ -775,7 +786,7 @@ public class MainFrame extends javax.swing.JFrame
     
     /******************************** HANDLERS *******************************/
     
-    private class MouseMotionHandler extends MouseAdapter
+    private class MouseHandler extends MouseAdapter
     {
         
         /**
@@ -785,7 +796,6 @@ public class MainFrame extends javax.swing.JFrame
         @Override
         public void mouseClicked(MouseEvent e)
         {
-            System.out.println("mouseClicked");
             _mouseActionClick();
         }
         
@@ -796,7 +806,6 @@ public class MainFrame extends javax.swing.JFrame
         @Override
         public void mousePressed(MouseEvent e)
         {
-            System.out.println("mousePressed");
             _mouseActionClick();
         }
         
@@ -868,6 +877,16 @@ public class MainFrame extends javax.swing.JFrame
                             AlphaComposite.getInstance(
                                     AlphaComposite.SRC_OVER, 0.5f
                             );
+                    // Set the fill mode in MainFrame and Canvas
+                    if(shape instanceof AJRFillShape2D){
+                        boolean isFill = ((AJRFillShape2D) shape).getIsFill();
+                        fill.setSelected(isFill);
+                        internalFrame.getCanvas2D().setFillMode(isFill);
+                    } else {
+                        fill.setSelected(false);
+                        internalFrame.getCanvas2D().setFillMode(false);
+                    }
+                    
                     // Set the color in MainFrame and Canvas
                     colors.setSelectedItem(shape.getColor());
                     internalFrame.getCanvas2D().setActiveColor(shape.getColor());
@@ -1123,7 +1142,6 @@ public class MainFrame extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Práctica 13");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        setPreferredSize(new java.awt.Dimension(1900, 900));
 
         toolBar.setRollover(true);
 
@@ -1188,7 +1206,7 @@ public class MainFrame extends javax.swing.JFrame
         ellipse.getAccessibleContext().setAccessibleDescription("Elipse");
 
         selector.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Edit.png"))); // NOI18N
-        selector.setToolTipText("Mover figura");
+        selector.setToolTipText("Editar figura");
         selector.setFocusable(false);
         selector.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         selector.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -2022,15 +2040,31 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_widthStrokeStateChanged
 
     private void antialiasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_antialiasingActionPerformed
-        if(internalFrame != null)
+        if(internalFrame != null){
             internalFrame.getCanvas2D().setAntialiasingMode(
-                    antialiasing.isSelected());
+                    antialiasing.isSelected()
+            );
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                actualShape.setHasAntialiasing(antialiasing.isSelected());
+            }
+        }
+        desktop.repaint();
     }//GEN-LAST:event_antialiasingActionPerformed
 
     private void colorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorsActionPerformed
-        if(internalFrame != null)
+        if(internalFrame != null){
             internalFrame.getCanvas2D().setActiveColor(
-                    colors.getItemAt(colors.getSelectedIndex()));
+                    (Color)colors.getSelectedItem()
+            );
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                actualShape.setColor((Color)colors.getSelectedItem());
+            }
+        }
+        desktop.repaint();
     }//GEN-LAST:event_colorsActionPerformed
 
     private void newCanvasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newCanvasActionPerformed
@@ -2049,13 +2083,20 @@ public class MainFrame extends javax.swing.JFrame
         if(internalFrame != null){
             internalFrame.getCanvas2D().setTransparencyMode(
                     transparency.isSelected());
+            AlphaComposite alphaComp = 
+                        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
             if(transparency.isSelected()){
-                internalFrame.getCanvas2D().setActiveComposite(
-                        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                alphaComp = 
+                        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+                internalFrame.getCanvas2D().setActiveComposite(alphaComp);
             }else{
-                internalFrame.getCanvas2D().setActiveComposite(
-                        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-            }  
+                internalFrame.getCanvas2D().setActiveComposite(alphaComp);
+            }
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                actualShape.setComposite(alphaComp);
+            }
         }
     }//GEN-LAST:event_transparencyActionPerformed
 

@@ -150,10 +150,18 @@ public class MainFrame extends javax.swing.JFrame
         Color.BLACK, Color.WHITE, Color.RED, Color.YELLOW, Color.BLUE, Color.GREEN 
     };
     ImageIcon icons[] = {
-        new ImageIcon(this.getClass().getClassLoader().getResource("icons/contraste.png")),
-        new ImageIcon(this.getClass().getClassLoader().getResource("icons/iluminar.png")),
-        new ImageIcon(this.getClass().getClassLoader().getResource("icons/oscurecer.png")),
-        new ImageIcon(this.getClass().getClassLoader().getResource("icons/negative.png"))
+        new ImageIcon(this.getClass().getClassLoader().getResource(
+                "icons/contraste.png")
+        ),
+        new ImageIcon(this.getClass().getClassLoader().getResource(
+                "icons/iluminar.png")
+        ),
+        new ImageIcon(this.getClass().getClassLoader().getResource(
+                "icons/oscurecer.png")
+        ),
+        new ImageIcon(this.getClass().getClassLoader().getResource(
+                "icons/negative.png")
+        )
     };
     
     /* Canvas measurements */
@@ -418,7 +426,6 @@ public class MainFrame extends javax.swing.JFrame
                         }
                     };
                     audioComboBox.addItem(file);
-//                    audioComboBox.setSelectedItem(file);
                     if(player != null){
                         player.stop();
                         player = null;

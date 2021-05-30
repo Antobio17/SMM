@@ -49,7 +49,11 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import sm.ajr.graphics.AJREllipse;
 import sm.ajr.graphics.AJRFillShape2D;
+import sm.ajr.graphics.AJRGeneralPath;
+import sm.ajr.graphics.AJRLine;
+import sm.ajr.graphics.AJRRectangle;
 import sm.ajr.graphics.AJRShape2D;
 import sm.ajr.image.AutoTintOp;
 import sm.ajr.image.OwnOp;
@@ -226,6 +230,7 @@ public class MainFrame extends javax.swing.JFrame
             }
         });
         stop.setEnabled(false);
+        shapeStatusBar.setText("Dibujando: Trazo libre");
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -880,6 +885,15 @@ public class MainFrame extends javax.swing.JFrame
             if(internalFrame != null && selector.isSelected()){
                 AJRShape2D shape = internalFrame.getCanvas2D().getActualShape();
                 if(shape != null){
+                    // Set the status bar
+                    if(shape instanceof AJRLine){
+                        shapeStatusBar.setText("Figura seleccionada: Línea");
+                    }else if(shape instanceof AJRRectangle){
+                        shapeStatusBar.setText("Figura seleccionada: Rectángulo");
+                    }else if(shape instanceof AJREllipse){
+                        shapeStatusBar.setText("Figura seleccionada: Elipse");
+                    }
+                    
                     Composite transparencyComposite =
                             AlphaComposite.getInstance(
                                     AlphaComposite.SRC_OVER, 0.5f
@@ -936,20 +950,25 @@ public class MainFrame extends javax.swing.JFrame
                 internalFrame.getCanvas2D().setSelectorMode(true);
                 internalFrame.getCanvas2D().setCursor(
                         new java.awt.Cursor(java.awt.Cursor.MOVE_CURSOR));
+                shapeStatusBar.setText("Figura Seleccionada: Ninguna");
             }else{
                 _toolsSelectedToFalse();
                 switch(internalFrame.getCanvas2D().getActiveShape()){
                     case GENERALPATH:
                         generalPath.setSelected(true);
+                        shapeStatusBar.setText("Dibujando: Trazo libre");
                         break;
                     case LINE:
                         line.setSelected(true);
+                        shapeStatusBar.setText("Dibujando: Línea");
                         break;
                     case RECTANGLE:
                         rectangle.setSelected(true);
+                        shapeStatusBar.setText("Dibujando: Rectángulo");
                         break;
                     case ELLIPSE:
                         ellipse.setSelected(true);
+                        shapeStatusBar.setText("Dibujando: Elipse");
                         break;
                 }
                 internalFrame.getCanvas2D().setCursor(new java.awt.Cursor(
@@ -1062,6 +1081,7 @@ public class MainFrame extends javax.swing.JFrame
         selector = new javax.swing.JToggleButton();
         separator1 = new javax.swing.JToolBar.Separator();
         colors = new javax.swing.JComboBox<>(colorsArray);
+        strokeColors = new javax.swing.JComboBox<>(colorsArray);
         jSeparator1 = new javax.swing.JToolBar.Separator();
         widthStroke = new javax.swing.JSpinner();
         fill = new javax.swing.JToggleButton();
@@ -1112,6 +1132,7 @@ public class MainFrame extends javax.swing.JFrame
         statusBar = new javax.swing.JPanel();
         statusBarTitle = new javax.swing.JLabel();
         statusBarVariable = new javax.swing.JLabel();
+        shapeStatusBar = new javax.swing.JLabel();
         containerPanel = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         play = new javax.swing.JButton();
@@ -1120,6 +1141,8 @@ public class MainFrame extends javax.swing.JFrame
         jSeparator12 = new javax.swing.JToolBar.Separator();
         rec = new javax.swing.JButton();
         recordingTime = new javax.swing.JLabel();
+        jSeparator13 = new javax.swing.JToolBar.Separator();
+        jToggleButton1 = new javax.swing.JToggleButton();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -1231,6 +1254,10 @@ public class MainFrame extends javax.swing.JFrame
         toolBar.add(colors);
         colors.getAccessibleContext().setAccessibleDescription("Color");
 
+        strokeColors.setToolTipText("Color de trazo");
+        strokeColors.setRenderer(new ColorCellRender());
+        strokeColors.addActionListener(formListener);
+        toolBar.add(strokeColors);
         toolBar.add(jSeparator1);
 
         widthStroke.setToolTipText("Cambiar grosor del trazo");
@@ -1532,26 +1559,13 @@ public class MainFrame extends javax.swing.JFrame
         getContentPane().add(toolBar, java.awt.BorderLayout.PAGE_START);
 
         statusBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        statusBar.setLayout(new java.awt.BorderLayout());
 
         statusBarTitle.setText("Barra de Estado");
-
-        javax.swing.GroupLayout statusBarLayout = new javax.swing.GroupLayout(statusBar);
-        statusBar.setLayout(statusBarLayout);
-        statusBarLayout.setHorizontalGroup(
-            statusBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusBarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(statusBarTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1855, Short.MAX_VALUE)
-                .addComponent(statusBarVariable)
-                .addGap(21, 21, 21))
-        );
-        statusBarLayout.setVerticalGroup(
-            statusBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(statusBarTitle)
-                .addComponent(statusBarVariable))
-        );
+        statusBarTitle.setPreferredSize(new java.awt.Dimension(300, 14));
+        statusBar.add(statusBarTitle, java.awt.BorderLayout.WEST);
+        statusBar.add(statusBarVariable, java.awt.BorderLayout.EAST);
+        statusBar.add(shapeStatusBar, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
 
@@ -1592,6 +1606,14 @@ public class MainFrame extends javax.swing.JFrame
 
         recordingTime.setText("00:00");
         jToolBar1.add(recordingTime);
+        jToolBar1.add(jSeparator13);
+
+        jToggleButton1.setText("jToggleButton1");
+        jToggleButton1.setFocusable(false);
+        jToggleButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleButton1.addActionListener(formListener);
+        jToolBar1.add(jToggleButton1);
 
         containerPanel.add(jToolBar1, java.awt.BorderLayout.SOUTH);
 
@@ -1602,7 +1624,7 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1965, Short.MAX_VALUE)
+            .addGap(0, 1999, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1835,6 +1857,12 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == aboutItemMenu) {
                 MainFrame.this.aboutItemMenuActionPerformed(evt);
             }
+            else if (evt.getSource() == strokeColors) {
+                MainFrame.this.strokeColorsActionPerformed(evt);
+            }
+            else if (evt.getSource() == jToggleButton1) {
+                MainFrame.this.jToggleButton1ActionPerformed(evt);
+            }
         }
 
         public void focusGained(java.awt.event.FocusEvent evt) {
@@ -1940,6 +1968,7 @@ public class MainFrame extends javax.swing.JFrame
     private void generalPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generalPathActionPerformed
         _toolsSelectedToFalse();
         generalPath.setSelected(true);
+        shapeStatusBar.setText("Dibujando: Trazo libre");
         if(internalFrame != null){
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.GENERALPATH
@@ -1953,6 +1982,7 @@ public class MainFrame extends javax.swing.JFrame
     private void lineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineActionPerformed
         _toolsSelectedToFalse();
         line.setSelected(true);
+        shapeStatusBar.setText("Dibujando: Línea");
         if(internalFrame != null){
             internalFrame.getCanvas2D().setActiveShape(Canvas2D.EnumShape.LINE);
             internalFrame.getCanvas2D().setCursor(
@@ -1964,6 +1994,7 @@ public class MainFrame extends javax.swing.JFrame
     private void rectangleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rectangleActionPerformed
         _toolsSelectedToFalse();
         rectangle.setSelected(true);
+        shapeStatusBar.setText("Dibujando: Rectángulo");
         if(internalFrame != null){
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.RECTANGLE
@@ -1977,6 +2008,7 @@ public class MainFrame extends javax.swing.JFrame
     private void ellipseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ellipseActionPerformed
         _toolsSelectedToFalse();
         ellipse.setSelected(true);
+        shapeStatusBar.setText("Dibujando: Elipse");
         if(internalFrame != null){
             internalFrame.getCanvas2D().setActiveShape(
                     Canvas2D.EnumShape.ELLIPSE
@@ -1997,6 +2029,7 @@ public class MainFrame extends javax.swing.JFrame
     private void selectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectorActionPerformed
         _toolsSelectedToFalse();
         selector.setSelected(true);
+        shapeStatusBar.setText("Figura seleccionada: Ninguna");
         if(internalFrame != null){
             internalFrame.getCanvas2D().setActualShape(null);
             internalFrame.getCanvas2D().setSelectorMode(true);
@@ -2646,6 +2679,28 @@ public class MainFrame extends javax.swing.JFrame
                         "Información",
                         JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_aboutItemMenuActionPerformed
+
+    private void strokeColorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_strokeColorsActionPerformed
+        if(internalFrame != null){
+            internalFrame.getCanvas2D().setActiveStrokeColor(
+                    (Color)strokeColors.getSelectedItem()
+            );
+            if(selector.isSelected()){
+                AJRShape2D actualShape = 
+                        internalFrame.getCanvas2D().getActualShape();
+                actualShape.setStrokeColor((Color)strokeColors.getSelectedItem());
+            }
+        }
+        desktop.repaint();
+    }//GEN-LAST:event_strokeColorsActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        WebcamInternalFrame wIF = WebcamInternalFrame.getInstance();
+        if(wIF != null){
+            desktop.add(wIF);
+            wIF.setVisible(true);
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItemMenu;
@@ -2683,6 +2738,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator11;
     private javax.swing.JToolBar.Separator jSeparator12;
+    private javax.swing.JToolBar.Separator jSeparator13;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -2691,6 +2747,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
+    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToggleButton line;
     private javax.swing.JMenuBar menu;
@@ -2728,11 +2785,13 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator separator2;
     private javax.swing.JPopupMenu.Separator separatorFile;
     private javax.swing.JButton sepia;
+    private javax.swing.JLabel shapeStatusBar;
     private javax.swing.JPanel statusBar;
     private javax.swing.JCheckBoxMenuItem statusBarMenu;
     private javax.swing.JLabel statusBarTitle;
     private javax.swing.JLabel statusBarVariable;
     private javax.swing.JButton stop;
+    private javax.swing.JComboBox<Color> strokeColors;
     private javax.swing.JButton tint;
     private javax.swing.JMenuItem tintItemMenu;
     private javax.swing.JSlider tintSlider;

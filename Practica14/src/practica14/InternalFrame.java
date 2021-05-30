@@ -25,6 +25,8 @@ public class InternalFrame extends javax.swing.JInternalFrame {
     }
     
     /*************************** GETTER AND SETTER ***************************/
+
+    /***************************** PUBLIC METHODS ****************************/
     
     /**
      * Gets the canvas of the internal frame.
@@ -34,8 +36,6 @@ public class InternalFrame extends javax.swing.JInternalFrame {
     public Canvas2D getCanvas2D(){
         return this.canvas;
     }
-
-    /***************************** PUBLIC METHODS ****************************/
     
     /***************************** PRIVARE METHODS ***************************/
     

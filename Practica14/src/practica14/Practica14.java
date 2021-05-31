@@ -6,6 +6,7 @@
 package practica14;
 
 import practica14.MainFrame;
+import uk.co.caprica.vlcj.discovery.NativeDiscovery;
 
 /**
  *
@@ -39,6 +40,12 @@ public class Practica14 {
         }
         //</editor-fold>
 
+        boolean ok = new NativeDiscovery().discover();
+        
+        if(!ok){
+            System.err.println("VLC no encontrado");
+        }
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

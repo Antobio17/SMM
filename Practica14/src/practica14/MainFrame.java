@@ -68,6 +68,8 @@ import sm.image.SepiaOp;
 import sm.image.TintOp;
 import sm.sound.SMClipPlayer;
 import sm.sound.SMSoundRecorder;
+import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 
 /**
  *
@@ -411,11 +413,14 @@ public class MainFrame extends javax.swing.JFrame
     {
         JFileChooser dlg = new JFileChooser();
         dlg.setFileFilter(new FileNameExtensionFilter(
-                "Imagenes [jpg, bmp, gif, png, jpeg, wbmp]",
-                "jpg", "bmp", "gif", "png", "jpeg", "wbmp"));
+                "Videos [mp4, mpg, avi]",
+                "mp4", "mpg", "avi"));
         dlg.setFileFilter(new FileNameExtensionFilter(
                 "Audios [wav, au, mid]",
                 "wav", "au", "mid"));
+        dlg.setFileFilter(new FileNameExtensionFilter(
+                "Imagenes [jpg, bmp, gif, png, jpeg, wbmp]",
+                "jpg", "bmp", "gif", "png", "jpeg", "wbmp"));
         int resp = dlg.showOpenDialog(this);
         if( resp == JFileChooser.APPROVE_OPTION) {
             try{
@@ -449,6 +454,14 @@ public class MainFrame extends javax.swing.JFrame
                         recorder.stop();
                         recorder = null;
                     }
+                }else if(this._isVideo(dlg.getSelectedFile())){
+                    File file = dlg.getSelectedFile();
+                    VideoInternalFrame videoIF =
+                            VideoInternalFrame.getInstance(file);
+                    videoIF.addMediaPlayerEventListener(new VideoHandler());
+                    this.desktop.add(videoIF);
+                    videoIF.setTitle(file.getName());
+                    videoIF.setVisible(true);
                 }
             }catch(IOException ex){
                 JOptionPane.showMessageDialog(
@@ -515,10 +528,11 @@ public class MainFrame extends javax.swing.JFrame
     }
     
     /**
-     * Methods to indentificate if the type of the file is an image.
+     * Método para saber si un archivo es de tipo Imagen.
      * 
-     * @param file
-     * @return 
+     * @param file File: archivo a comprobar.
+     * 
+     * @return boolean si el archivo es de tipo imagen o no.
      */
     private boolean _isImage(File file)
     {
@@ -529,15 +543,30 @@ public class MainFrame extends javax.swing.JFrame
     }
     
     /**
-     * Methods to indentificate if the type of the file is an audio.
+     * Método para saber si un archivo es de tipo Audio.
      * 
-     * @param file
-     * @return 
+     * @param file File: archivo a comprobar.
+     * 
+     * @return boolean si el archivo es de tipo Audio o no.
      */
     private boolean _isAudio(File file)
     {
         String extension = this._getExtension(file.getName());
         return ("wave".equals(extension) || "au".equals(extension));
+    }
+    
+    /**
+     * Método para saber si un archivo es de tipo Video.
+     * 
+     * @param file File: archivo a comprobar.
+     * 
+     * @return boolean si el archivo es de tipo video o no.
+     */
+    private boolean _isVideo(File file)
+    {
+        String extension = this._getExtension(file.getName());
+        return ("mp4".equals(extension) || "mpg".equals(extension) 
+                || "avi".equals(extension));
     }
     
     /**
@@ -1012,7 +1041,7 @@ public class MainFrame extends javax.swing.JFrame
      
     }
     
-    class AudioHandler implements LineListener
+    private class AudioHandler implements LineListener
     {
 
         @Override
@@ -1057,7 +1086,7 @@ public class MainFrame extends javax.swing.JFrame
         }
     }
     
-    class RecordHandler implements LineListener
+    private class RecordHandler implements LineListener
     {
         
         @Override
@@ -1082,6 +1111,26 @@ public class MainFrame extends javax.swing.JFrame
             }
         }
         
+    }
+    
+    private class VideoHandler extends MediaPlayerEventAdapter {
+        
+        @Override
+        public void playing(MediaPlayer mediaPlayer) {
+            play.setEnabled(false);
+            stop.setEnabled(true);
+        }
+        
+        @Override
+        public void paused(MediaPlayer mediaPlayer) {
+            stop.setEnabled(false);
+            play.setEnabled(true);
+        }
+
+        @Override
+        public void finished(MediaPlayer mediaPlayer) {
+            this.paused(mediaPlayer);
+        }
     }
     
     /************************** JAVA GENERATED CODE **************************/
@@ -2674,25 +2723,37 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_histogramActionPerformed
 
     private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
-        if(audioComboBox.getItemCount() > 0){
-            if(player == null) {
-                File f = (File) audioComboBox.getSelectedItem();
-                if (f != null) {
-                    player = new SMClipPlayer(f);
-                    player.addLineListener(audioListener);
+        if(desktop.getSelectedFrame() instanceof VideoInternalFrame){
+            VideoInternalFrame videoIF = 
+                    (VideoInternalFrame)desktop.getSelectedFrame();
+            videoIF.play();
+        }else{
+            if(audioComboBox.getItemCount() > 0){
+                if(player == null) {
+                    File f = (File) audioComboBox.getSelectedItem();
+                    if (f != null) {
+                        player = new SMClipPlayer(f);
+                        player.addLineListener(audioListener);
+                    }
                 }
-            }
-            if(player.getClip().isRunning()){
-                player.pause();
-            }else{
-                player.play();
+                if(player.getClip().isRunning()){
+                    player.pause();
+                }else{
+                    player.play();
+                }
             }
         }
     }//GEN-LAST:event_playActionPerformed
 
     private void stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopActionPerformed
-        if(player != null){
-            player.stop();
+        if(desktop.getSelectedFrame() instanceof VideoInternalFrame){
+            VideoInternalFrame videoIF = 
+                    (VideoInternalFrame)desktop.getSelectedFrame();
+            videoIF.stop();
+        }else{
+            if(player != null){
+                player.stop();
+            }
         }
     }//GEN-LAST:event_stopActionPerformed
 
@@ -2767,14 +2828,25 @@ public class MainFrame extends javax.swing.JFrame
     }//GEN-LAST:event_webcamComboBoxActionPerformed
 
     private void screenShotButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_screenShotButtonActionPerformed
-        if(webcamIF != null && webcamIF.getWebcam().isOpen()){
+        if(desktop.getSelectedFrame() instanceof VideoInternalFrame){
+            VideoInternalFrame videoIF = (VideoInternalFrame)desktop.getSelectedFrame();
             InternalFrame iF = new InternalFrame();
             desktop.add(iF);
             iF.setVisible(true);
 
             _initializeCanvas(iF);
             internalFrame = iF;
-            internalFrame.getCanvas2D().setImage(webcamIF.getImage());
+            internalFrame.getCanvas2D().setImage(videoIF.getImage());
+        }else if(desktop.getSelectedFrame() instanceof WebcamInternalFrame){
+            if(webcamIF != null && webcamIF.getWebcam().isOpen()){
+                InternalFrame iF = new InternalFrame();
+                desktop.add(iF);
+                iF.setVisible(true);
+
+                _initializeCanvas(iF);
+                internalFrame = iF;
+                internalFrame.getCanvas2D().setImage(webcamIF.getImage());
+            }
         }
     }//GEN-LAST:event_screenShotButtonActionPerformed
     

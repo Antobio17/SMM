@@ -103,10 +103,13 @@ public class AJREllipse extends AJRFillShape2D
      * @param composite
      * @param stroke
      */
-    public void createShape(Point2D initPoint, Color color,
-            boolean hasAntialiasing, Composite composite, BasicStroke stroke) 
+    @Override
+    public void createShape(Point2D initPoint, Color color, Color strokeColor,
+            boolean hasAntialiasing, Composite composite, BasicStroke stroke)
     {
-        super.createShape(initPoint, color, hasAntialiasing, composite, stroke);
+        super.createShape(
+                initPoint, color, strokeColor, hasAntialiasing, composite, stroke
+        );
         ellipse = new Ellipse2D.Float(
                 (float)initPoint.getX(), (float)initPoint.getY(), 0, 0
         );

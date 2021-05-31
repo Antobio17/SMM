@@ -113,10 +113,13 @@ public class AJRRectangle extends AJRFillShape2D
      * @param composite
      * @param stroke
      */
-    public void createShape(Point2D initPoint, Color color,
+    @Override
+    public void createShape(Point2D initPoint, Color color, Color strokeColor,
             boolean hasAntialiasing, Composite composite, BasicStroke stroke) 
     {
-        super.createShape(initPoint, color, hasAntialiasing, composite, stroke);
+        super.createShape(
+                initPoint, color, strokeColor, hasAntialiasing, composite, stroke
+        );
         rectangle = new Rectangle();
     }
     

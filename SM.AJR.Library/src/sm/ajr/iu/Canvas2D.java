@@ -36,7 +36,7 @@ public class Canvas2D extends javax.swing.JPanel {
     
     public enum EnumShape { GENERALPATH, LINE, RECTANGLE, ELLIPSE }
     EnumShape activeShape;
-    private Color activeColor;
+    private Color activeColor, activeStrokeColor;
     private Point2D initialPoint;
     private Point movingPoint; /* To do a secuencial movement */
     private boolean fillMode, selectorMode, antialiasingMode,
@@ -73,6 +73,7 @@ public class Canvas2D extends javax.swing.JPanel {
         movingPoint = new Point(-10, -10);
         activeShape = EnumShape.GENERALPATH;
         activeColor = Color.BLACK;
+        activeStrokeColor = Color.BLACK;
         fillMode = false;
         transparencyMode = false;
         selectorMode = false;
@@ -113,8 +114,9 @@ public class Canvas2D extends javax.swing.JPanel {
     public BufferedImage getImage(boolean drawVector)
     {
         if (drawVector) {
+            int type = image.getType();
             BufferedImage imageOut = new BufferedImage(
-                    image.getWidth(), image.getHeight(), image.getType());
+                    image.getWidth(), image.getHeight(), type != 0 ? type : 2);
             boolean actualOpaque = this.isOpaque();
             if (image.getColorModel().hasAlpha()) {
                 this.setOpaque(false);
@@ -225,6 +227,26 @@ public class Canvas2D extends javax.swing.JPanel {
     public Color getActiveColor()
     {
         return this.activeColor;
+    }
+    
+    /**
+     * Sets the active color on the canvas.
+     * 
+     * @param activeStrokeColor 
+     */
+    public void setActiveStrokeColor(Color activeStrokeColor)
+    {
+        this.activeStrokeColor = activeStrokeColor;
+    }
+    
+    /**
+     * Gets the active color on the canvas.
+     * 
+     * @return Color
+     */
+    public Color getActiveStrokeColor()
+    {
+        return this.activeStrokeColor;
     }
     
     /**
@@ -495,8 +517,7 @@ public class Canvas2D extends javax.swing.JPanel {
                         ((AJREllipse)actualShape).setIsFill(fillMode);
                         break;
                 }
-                actualShape.createShape(
-                        initialPoint, activeColor, antialiasingMode,
+                actualShape.createShape(initialPoint, activeColor, activeStrokeColor, antialiasingMode,
                         activeComposite, stroke
                 );    
                 vShape.add(actualShape);

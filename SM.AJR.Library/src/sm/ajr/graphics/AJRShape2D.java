@@ -8,6 +8,7 @@ package sm.ajr.graphics;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
@@ -21,7 +22,7 @@ public abstract class AJRShape2D
     
     /******************************* PROPERTIES ******************************/
     
-    Color color;
+    Color color, strokeColor;
     boolean hasAntialiasing;
     BasicStroke stroke;
     Composite composite;
@@ -62,6 +63,25 @@ public abstract class AJRShape2D
         return this.color;
     }
     
+    /**
+     * Establece la propiedad ColorStroke de la figura.
+     * 
+     * @param strokeColor Color: color a establecer.
+     */
+    public void setStrokeColor(Color strokeColor)
+    {
+        this.strokeColor = strokeColor;
+    }
+    
+    /**
+     * Obtiene la propiedad ColorStroke de la figura.
+     * 
+     * @return Color color del trazo de la figura.
+     */
+    public Color getStrokeColor()
+    {
+        return this.strokeColor;
+    }
     
     /**
      * Establece la propiedad Stroke de la figura.
@@ -132,8 +152,9 @@ public abstract class AJRShape2D
      */
     public void paint(Graphics2D g2d)
     {
-        g2d.setColor(this.color);
+        g2d.setColor(this.strokeColor);
         g2d.setStroke(this.stroke);
+        g2d.setColor(this.color);
         g2d.setComposite(this.composite);
         if(hasAntialiasing)
             g2d.setRenderingHints(new RenderingHints(
@@ -182,15 +203,17 @@ public abstract class AJRShape2D
      * 
      * @param initPoint Point2D: punto donde empieza la figura
      * @param color Color: color de la figura.
+     * @param strokeColor Color: color del trazo de la figura.
      * @param hasAntialiasing Boolean: si la figura es lisa o no.
      * @param composite Composite: composición de la figura para la transparencia.
      * @param stroke BasicStroke: trazo de la figura.
      */
-    public void createShape(Point2D initPoint, Color color,
+    public void createShape(Point2D initPoint, Color color, Color strokeColor,
             boolean hasAntialiasing, Composite composite, BasicStroke stroke)
     {
         this.setStroke(stroke);
         this.setColor(color);
+        this.setStrokeColor(strokeColor);
         this.setHasAntialiasing(hasAntialiasing);
         this.setComposite(composite);
     }

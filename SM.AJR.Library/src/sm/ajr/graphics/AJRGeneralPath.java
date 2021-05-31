@@ -104,10 +104,12 @@ public class AJRGeneralPath extends AJRShape2D
      * @param stroke
      */
     @Override
-    public void createShape(Point2D initPoint, Color color,
-            boolean hasAntialiasing, Composite composite, BasicStroke stroke) 
+    public void createShape(Point2D initPoint, Color color, Color strokeColor,
+            boolean hasAntialiasing, Composite composite, BasicStroke stroke)
     {
-        super.createShape(initPoint, color, hasAntialiasing, composite, stroke);
+        super.createShape(
+                initPoint, color, strokeColor, hasAntialiasing, composite, stroke
+        );
     }
     
     /***************************** PRIVARE METHODS ***************************/

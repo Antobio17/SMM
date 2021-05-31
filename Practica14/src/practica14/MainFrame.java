@@ -5,11 +5,13 @@
  */
 package practica14;
 
+import com.github.sarxos.webcam.Webcam;
 import sm.ajr.iu.Canvas2D;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -183,6 +185,9 @@ public class MainFrame extends javax.swing.JFrame
     Timer timer = null;
     int minutes, seconds;
     
+    /* Video */
+    WebcamInternalFrame webcamIF;
+    
     /******************************* CONSTRUCTS ******************************/
     
     /**
@@ -231,6 +236,11 @@ public class MainFrame extends javax.swing.JFrame
         });
         stop.setEnabled(false);
         shapeStatusBar.setText("Dibujando: Trazo libre");
+        webcamIF = null;
+        for(Webcam webcam: Webcam.getWebcams()){
+            webcamComboBox.addItem(webcam);
+        }
+        _setWebcamDimensions();
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -796,6 +806,24 @@ public class MainFrame extends javax.swing.JFrame
         }
     }
     
+    /**
+     * Función para establecer las resoluciones de la Webcam seleccionada.
+     * 
+     */
+    private void _setWebcamDimensions()
+    {
+        dimensionComboBox.removeAllItems();
+        for(Dimension d: ((Webcam)webcamComboBox.getSelectedItem()).getViewSizes()){
+            Dimension dimension = new Dimension(d){
+                @Override
+                public String toString() {
+                    return (int)this.getWidth() + "x" + (int)this.getHeight();
+                }
+            };
+            dimensionComboBox.addItem(dimension);
+        }
+    }
+    
     /******************************** HANDLERS *******************************/
     
     private class MouseHandler extends MouseAdapter
@@ -869,8 +897,8 @@ public class MainFrame extends javax.swing.JFrame
                 statusBarVariable.setText(
                         statusBarVariable.getText() +
                         "  RGB: ( " + pixelColor.getRed() +
-                        ", " + pixelColor.getGreen() + ", " + pixelColor.getBlue() +
-                        " )"
+                        ", " + pixelColor.getGreen() + ", " +
+                        pixelColor.getBlue() + " )"
                 );
             }else{
                 statusBarVariable.setText(
@@ -1142,7 +1170,10 @@ public class MainFrame extends javax.swing.JFrame
         rec = new javax.swing.JButton();
         recordingTime = new javax.swing.JLabel();
         jSeparator13 = new javax.swing.JToolBar.Separator();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        webcamButton = new javax.swing.JButton();
+        webcamComboBox = new javax.swing.JComboBox<>();
+        dimensionComboBox = new javax.swing.JComboBox<>();
+        screenShotButton = new javax.swing.JButton();
         desktop = new javax.swing.JDesktopPane();
         menu = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -1172,6 +1203,7 @@ public class MainFrame extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Práctica 14");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setPreferredSize(new java.awt.Dimension(1800, 676));
 
         toolBar.setRollover(true);
 
@@ -1608,12 +1640,28 @@ public class MainFrame extends javax.swing.JFrame
         jToolBar1.add(recordingTime);
         jToolBar1.add(jSeparator13);
 
-        jToggleButton1.setText("jToggleButton1");
-        jToggleButton1.setFocusable(false);
-        jToggleButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jToggleButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToggleButton1.addActionListener(formListener);
-        jToolBar1.add(jToggleButton1);
+        webcamButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Webcam.png"))); // NOI18N
+        webcamButton.setFocusable(false);
+        webcamButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        webcamButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        webcamButton.addActionListener(formListener);
+        jToolBar1.add(webcamButton);
+
+        webcamComboBox.setMaximumSize(new java.awt.Dimension(100, 26));
+        webcamComboBox.addActionListener(formListener);
+        jToolBar1.add(webcamComboBox);
+
+        dimensionComboBox.setMaximumSize(new java.awt.Dimension(100, 26));
+        dimensionComboBox.setMinimumSize(new java.awt.Dimension(100, 26));
+        dimensionComboBox.setPreferredSize(new java.awt.Dimension(100, 26));
+        jToolBar1.add(dimensionComboBox);
+
+        screenShotButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Screenshot.png"))); // NOI18N
+        screenShotButton.setFocusable(false);
+        screenShotButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        screenShotButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        screenShotButton.addActionListener(formListener);
+        jToolBar1.add(screenShotButton);
 
         containerPanel.add(jToolBar1, java.awt.BorderLayout.SOUTH);
 
@@ -1746,6 +1794,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == colors) {
                 MainFrame.this.colorsActionPerformed(evt);
             }
+            else if (evt.getSource() == strokeColors) {
+                MainFrame.this.strokeColorsActionPerformed(evt);
+            }
             else if (evt.getSource() == fill) {
                 MainFrame.this.fillActionPerformed(evt);
             }
@@ -1833,6 +1884,12 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == rec) {
                 MainFrame.this.recActionPerformed(evt);
             }
+            else if (evt.getSource() == webcamButton) {
+                MainFrame.this.webcamButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == webcamComboBox) {
+                MainFrame.this.webcamComboBoxActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1857,11 +1914,8 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == aboutItemMenu) {
                 MainFrame.this.aboutItemMenuActionPerformed(evt);
             }
-            else if (evt.getSource() == strokeColors) {
-                MainFrame.this.strokeColorsActionPerformed(evt);
-            }
-            else if (evt.getSource() == jToggleButton1) {
-                MainFrame.this.jToggleButton1ActionPerformed(evt);
+            else if (evt.getSource() == screenShotButton) {
+                MainFrame.this.screenShotButtonActionPerformed(evt);
             }
         }
 
@@ -2694,13 +2748,35 @@ public class MainFrame extends javax.swing.JFrame
         desktop.repaint();
     }//GEN-LAST:event_strokeColorsActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        WebcamInternalFrame wIF = WebcamInternalFrame.getInstance();
-        if(wIF != null){
-            desktop.add(wIF);
-            wIF.setVisible(true);
+    private void webcamButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_webcamButtonActionPerformed
+        if(webcamIF == null || 
+                (webcamIF != null && !webcamIF.getWebcam().isOpen())){
+            webcamIF = WebcamInternalFrame.getInstance(
+                    (Webcam)webcamComboBox.getSelectedItem(),
+                    (Dimension)dimensionComboBox.getSelectedItem()
+            );
+            if(webcamIF != null){
+                desktop.add(webcamIF);
+                webcamIF.setVisible(true);
+            }
         }
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    }//GEN-LAST:event_webcamButtonActionPerformed
+
+    private void webcamComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_webcamComboBoxActionPerformed
+        _setWebcamDimensions();
+    }//GEN-LAST:event_webcamComboBoxActionPerformed
+
+    private void screenShotButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_screenShotButtonActionPerformed
+        if(webcamIF != null && webcamIF.getWebcam().isOpen()){
+            InternalFrame iF = new InternalFrame();
+            desktop.add(iF);
+            iF.setVisible(true);
+
+            _initializeCanvas(iF);
+            internalFrame = iF;
+            internalFrame.getCanvas2D().setImage(webcamIF.getImage());
+        }
+    }//GEN-LAST:event_screenShotButtonActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItemMenu;
@@ -2718,6 +2794,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem copyMenu;
     private javax.swing.JMenuItem cutMenu;
     private javax.swing.JDesktopPane desktop;
+    private javax.swing.JComboBox<Dimension> dimensionComboBox;
     private javax.swing.JButton duplicate;
     private javax.swing.JMenu editMenu;
     private javax.swing.JToggleButton ellipse;
@@ -2747,7 +2824,6 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToggleButton line;
     private javax.swing.JMenuBar menu;
@@ -2779,6 +2855,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem saveMenu;
     private javax.swing.JButton scaleIn;
     private javax.swing.JButton scaleOut;
+    private javax.swing.JButton screenShotButton;
     private javax.swing.JLabel secondRotationLabel;
     private javax.swing.JToggleButton selector;
     private javax.swing.JToolBar.Separator separator1;
@@ -2800,6 +2877,8 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JToolBar toolBar;
     private javax.swing.JToggleButton transparency;
     private javax.swing.JMenu viewMenu;
+    private javax.swing.JButton webcamButton;
+    private javax.swing.JComboBox<Webcam> webcamComboBox;
     private javax.swing.JSpinner widthStroke;
     private javax.swing.JToggleButton windowsEffect;
     // End of variables declaration//GEN-END:variables

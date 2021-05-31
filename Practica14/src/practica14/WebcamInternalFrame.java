@@ -8,7 +8,9 @@ package practica14;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
  *
@@ -24,12 +26,15 @@ public class WebcamInternalFrame extends javax.swing.JInternalFrame {
     
     /**
      * Creates new form WebCamInternalFrame
+     * 
+     * @param dimension Dimension: Resolución de la webcam.
      */
-    private WebcamInternalFrame() 
+    private WebcamInternalFrame(Webcam webcam, Dimension dimension) 
     {
         initComponents();
-        webcam = Webcam.getDefault();
+        this.webcam = webcam;
         if (webcam != null) {
+            webcam.setViewSize(dimension);
             WebcamPanel visualArea = new WebcamPanel(webcam);
             if (visualArea != null) {
                 getContentPane().add(visualArea, BorderLayout.CENTER);
@@ -41,16 +46,32 @@ public class WebcamInternalFrame extends javax.swing.JInternalFrame {
 
     /*************************** GETTER AND SETTER ***************************/
 
+    /**
+     * Obtiene la propiedad Webcam de la ventana interna.
+     * 
+     * @return Webcam webcam de la ventana interna.
+     */
+    public Webcam getWebcam()
+    {
+        return this.webcam;
+    }
+    
     /***************************** PUBLIC METHODS ****************************/
     
     /**
      * Metodo que obtiene una instancia de la clase WebcamInternalFrame.
      * 
+     * @param webcam Webcam: Webcam a activar.
+     * @param dimension Dimension: Resolución de la webcam.
+     * 
      * @return WebcamInternalFrame instancia de la clase WebcamInternalFrame.
      */
-    public static WebcamInternalFrame getInstance()
+    public static WebcamInternalFrame getInstance(Webcam webcam,
+            Dimension dimension)
     {
-        WebcamInternalFrame webcamInternalFrame = new WebcamInternalFrame();
+        WebcamInternalFrame webcamInternalFrame = new WebcamInternalFrame(
+                webcam, dimension
+        );
         return (webcamInternalFrame.webcam != null ? webcamInternalFrame : null);
     }
     
@@ -63,6 +84,27 @@ public class WebcamInternalFrame extends javax.swing.JInternalFrame {
     {
         return webcam != null ? webcam.getImage() : null;
     }
+    
+    /**
+     * Método para obtener las resoluciones disponibles de la webcam.
+     * 
+     * @return Dimension[] array de resoluciones. 
+     */
+    public Dimension[] getResolutions()
+    {
+        return webcam.getViewSizes();
+    }
+    
+    /**
+     * Método para obtener todas las webcams.
+     * 
+     * @return Webcam[] lista de webcams.
+     */
+    public List<Webcam> getWebcams()
+    {
+        return Webcam.getWebcams();
+    }
+    
     /***************************** PRIVARE METHODS ***************************/
     
     /************************** JAVA GENERATED CODE **************************/
@@ -80,20 +122,32 @@ public class WebcamInternalFrame extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 394, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 274, Short.MAX_VALUE)
-        );
+        addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
+                formInternalFrameClosing(evt);
+            }
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
+        if(webcam != null){
+            webcam.close();
+        }
+    }//GEN-LAST:event_formInternalFrameClosing
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

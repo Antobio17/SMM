@@ -218,6 +218,7 @@ public class MainFrame extends javax.swing.JFrame
         posterizeSlider.setVisible(false);
         quadraticFunctionSlider.setVisible(false); 
         ownOperatorSlider.setVisible(false);
+        ownLookupOp.setVisible(false);
         audioListener = new AudioHandler();
         recordListener = new RecordHandler();
         minutes = 0;
@@ -332,6 +333,33 @@ public class MainFrame extends javax.swing.JFrame
         for(int i = 128; i < 256; i++)
             lookupTable[i] = (byte)i;
         
+        
+        ByteLookupTable slt = new ByteLookupTable(0,lookupTable);
+        return slt;
+    }
+    
+    public LookupTable ownLookupOpTable(int value){
+        double Max;
+        if(value < 0){
+            Max = Math.pow(255,2);
+        }else{
+            Max = Math.log(1.0 + 255);
+        }
+
+        double K = 255.0/Max;
+ 
+        byte lookupTable[] = new byte[256];
+        for(int i = 0; i < 256; i++){
+            if(i < 150)
+                lookupTable[i] = (byte)i;
+            else{
+                if(value < 0){
+                    lookupTable[i] = (byte)(K*(Math.pow(i,2)));
+                }else{
+                    lookupTable[i] = (byte)(K*(Math.log(1.0 + i)));
+                }
+            }
+        }
         
         ByteLookupTable slt = new ByteLookupTable(0,lookupTable);
         return slt;
@@ -955,19 +983,40 @@ public class MainFrame extends javax.swing.JFrame
                             AlphaComposite.getInstance(
                                     AlphaComposite.SRC_OVER, 0.5f
                             );
-                    // Set the fill mode in MainFrame and Canvas
+                   
                     if(shape instanceof AJRFillShape2D){
+                        // Set the fill mode in MainFrame and Canvas
                         boolean isFill = ((AJRFillShape2D) shape).getIsFill();
                         fill.setSelected(isFill);
                         internalFrame.getCanvas2D().setFillMode(isFill);
-                    } else {
+                        // Set the color in MainFrame and Canvas
+                         colors.setSelectedItem(
+                                ((AJRFillShape2D)shape).getFillColor()
+                        );
+                        internalFrame.getCanvas2D().setActiveColor(
+                                ((AJRFillShape2D)shape).getFillColor()
+                        );
+                    }else{
+                        // Set the fill mode in MainFrame and Canvas
                         fill.setSelected(false);
                         internalFrame.getCanvas2D().setFillMode(false);
+                        // Set the color in MainFrame and Canvas
+                        colors.setSelectedItem(
+                                Color.BLACK
+                        );
+                        internalFrame.getCanvas2D().setActiveColor(
+                                Color.BLACK
+                        );
                     }
                     
-                    // Set the color in MainFrame and Canvas
-                    colors.setSelectedItem(shape.getColor());
-                    internalFrame.getCanvas2D().setActiveColor(shape.getColor());
+                    // Set the stroke color in MainFrame and Canvas
+                    strokeColors.setSelectedItem(
+                            shape.getStrokeColor()
+                    );
+                    internalFrame.getCanvas2D().setActiveColor(
+                            shape.getStrokeColor()
+                    );
+                    
                     // Set the transparency in MainFrame and Canvas
                     boolean isTransparency = 
                             shape.getComposite().equals(transparencyComposite);
@@ -1204,6 +1253,7 @@ public class MainFrame extends javax.swing.JFrame
         challengesComboBox = new javax.swing.JComboBox<>();
         ownOperatorButton = new javax.swing.JButton();
         ownOperatorSlider = new javax.swing.JSlider();
+        ownLookupOp = new javax.swing.JSlider();
         jSeparator10 = new javax.swing.JToolBar.Separator();
         histogram = new javax.swing.JButton();
         statusBar = new javax.swing.JPanel();
@@ -1628,6 +1678,17 @@ public class MainFrame extends javax.swing.JFrame
         ownOperatorSlider.addChangeListener(formListener);
         ownOperatorSlider.addFocusListener(formListener);
         toolBar.add(ownOperatorSlider);
+
+        ownLookupOp.setMaximum(50);
+        ownLookupOp.setMinimum(-50);
+        ownLookupOp.setToolTipText("LookupOp Propio");
+        ownLookupOp.setValue(0);
+        ownLookupOp.setMaximumSize(new java.awt.Dimension(100, 26));
+        ownLookupOp.setMinimumSize(new java.awt.Dimension(100, 26));
+        ownLookupOp.setPreferredSize(new java.awt.Dimension(100, 26));
+        ownLookupOp.addChangeListener(formListener);
+        ownLookupOp.addFocusListener(formListener);
+        toolBar.add(ownLookupOp);
         toolBar.add(jSeparator10);
 
         histogram.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/1-Histogram.png"))); // NOI18N
@@ -1721,7 +1782,7 @@ public class MainFrame extends javax.swing.JFrame
         desktop.setLayout(desktopLayout);
         desktopLayout.setHorizontalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1999, Short.MAX_VALUE)
+            .addGap(0, 2071, Short.MAX_VALUE)
         );
         desktopLayout.setVerticalGroup(
             desktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1939,6 +2000,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == webcamComboBox) {
                 MainFrame.this.webcamComboBoxActionPerformed(evt);
             }
+            else if (evt.getSource() == screenShotButton) {
+                MainFrame.this.screenShotButtonActionPerformed(evt);
+            }
             else if (evt.getSource() == newMenu) {
                 MainFrame.this.newMenuActionPerformed(evt);
             }
@@ -1962,9 +2026,6 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == aboutItemMenu) {
                 MainFrame.this.aboutItemMenuActionPerformed(evt);
-            }
-            else if (evt.getSource() == screenShotButton) {
-                MainFrame.this.screenShotButtonActionPerformed(evt);
             }
         }
 
@@ -1996,6 +2057,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == ownOperatorSlider) {
                 MainFrame.this.ownOperatorSliderFocusGained(evt);
             }
+            else if (evt.getSource() == ownLookupOp) {
+                MainFrame.this.ownLookupOpFocusGained(evt);
+            }
         }
 
         public void focusLost(java.awt.event.FocusEvent evt) {
@@ -2026,6 +2090,9 @@ public class MainFrame extends javax.swing.JFrame
             else if (evt.getSource() == ownOperatorSlider) {
                 MainFrame.this.ownOperatorSliderFocusLost(evt);
             }
+            else if (evt.getSource() == ownLookupOp) {
+                MainFrame.this.ownLookupOpFocusLost(evt);
+            }
         }
 
         public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -2052,6 +2119,9 @@ public class MainFrame extends javax.swing.JFrame
             }
             else if (evt.getSource() == ownOperatorSlider) {
                 MainFrame.this.ownOperatorSliderStateChanged(evt);
+            }
+            else if (evt.getSource() == ownLookupOp) {
+                MainFrame.this.ownLookupOpStateChanged(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -2204,7 +2274,11 @@ public class MainFrame extends javax.swing.JFrame
             if(selector.isSelected()){
                 AJRShape2D actualShape = 
                         internalFrame.getCanvas2D().getActualShape();
-                actualShape.setColor((Color)colors.getSelectedItem());
+                if(actualShape instanceof AJRFillShape2D){
+                    ((AJRFillShape2D)actualShape).setFillColor(
+                            (Color)colors.getSelectedItem()
+                    );
+                }
             }
         }
         desktop.repaint();
@@ -2697,6 +2771,7 @@ public class MainFrame extends javax.swing.JFrame
 
     private void ownOperatorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ownOperatorButtonActionPerformed
         ownOperatorSlider.setVisible(!ownOperatorSlider.isVisible());
+        ownLookupOp.setVisible(!ownLookupOp.isVisible());
     }//GEN-LAST:event_ownOperatorButtonActionPerformed
 
     private void autoTintOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoTintOpActionPerformed
@@ -2849,6 +2924,21 @@ public class MainFrame extends javax.swing.JFrame
             }
         }
     }//GEN-LAST:event_screenShotButtonActionPerformed
+
+    private void ownLookupOpFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownLookupOpFocusGained
+        this._swingControlsFocusGained();
+    }//GEN-LAST:event_ownLookupOpFocusGained
+
+    private void ownLookupOpFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ownLookupOpFocusLost
+        sourceImage = null;
+        ownOperatorSlider.setValue(0);
+    }//GEN-LAST:event_ownLookupOpFocusLost
+
+    private void ownLookupOpStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_ownLookupOpStateChanged
+        this._applyLookup(
+                this.ownLookupOpTable(ownLookupOp.getValue())
+        );
+    }//GEN-LAST:event_ownLookupOpStateChanged
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutItemMenu;
@@ -2904,6 +2994,7 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem newSizeImage;
     private javax.swing.JButton openFile;
     private javax.swing.JMenuItem openMenu;
+    private javax.swing.JSlider ownLookupOp;
     private javax.swing.JButton ownOperatorButton;
     private javax.swing.JSlider ownOperatorSlider;
     private javax.swing.JMenuItem pasteMenu;

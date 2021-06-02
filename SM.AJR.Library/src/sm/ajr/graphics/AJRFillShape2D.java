@@ -5,6 +5,8 @@
  */
 package sm.ajr.graphics;
 
+import java.awt.Color;
+
 /**
  *
  * @author Antonio Jiménez Rodríguez
@@ -14,7 +16,8 @@ public abstract class AJRFillShape2D extends AJRShape2D
     
     /******************************* PROPERTIES ******************************/
 
-    private boolean isFill;
+    boolean isFill;
+    Color fillColor;
     
     /******************************* CONSTRUCTS ******************************/
     
@@ -25,6 +28,7 @@ public abstract class AJRFillShape2D extends AJRShape2D
     {
         super();
         isFill = false;
+        fillColor = Color.BLACK;
     }
     
     /*************************** GETTER AND SETTER ***************************/
@@ -40,13 +44,33 @@ public abstract class AJRFillShape2D extends AJRShape2D
     }
     
     /**
-     * Obtiene la propiedad IsFill de la figura.
+     * Obtiene la propiedad FillColor de la figura.
      * 
      * @return boolean si la figura está rellena o no.
      */
     public boolean getIsFill()
     {
         return this.isFill;
+    }
+    
+    /**
+     * Establece la propiedad FillColor de la figura.
+     * 
+     * @param fillColor Color: color de relleno de la figura.
+     */
+    public void setFillColor(Color fillColor)
+    {
+        this.fillColor = fillColor;
+    }
+    
+    /**
+     * Obtiene la propiedad IsFill de la figura.
+     * 
+     * @return Color color del relleno de la figura.
+     */
+    public Color getFillColor()
+    {
+        return this.fillColor;
     }
     
     /***************************** PUBLIC METHODS ****************************/

@@ -50,6 +50,7 @@ public class AJRGeneralPath extends AJRShape2D
     public void paint(Graphics2D g2d) 
     {
         super.paint(g2d);
+        g2d.setColor(this.strokeColor);
         g2d.draw(generalPath);
     }
 
@@ -98,17 +99,17 @@ public class AJRGeneralPath extends AJRShape2D
     /**
      * 
      * @param initPoint
-     * @param color
+     * @param strokeColor
      * @param hasAntialiasing
      * @param composite
      * @param stroke
      */
     @Override
-    public void createShape(Point2D initPoint, Color color, Color strokeColor,
+    public void createShape(Point2D initPoint, Color strokeColor,
             boolean hasAntialiasing, Composite composite, BasicStroke stroke)
     {
         super.createShape(
-                initPoint, color, strokeColor, hasAntialiasing, composite, stroke
+                initPoint,strokeColor, hasAntialiasing, composite, stroke
         );
     }
     

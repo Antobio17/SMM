@@ -511,13 +511,15 @@ public class Canvas2D extends javax.swing.JPanel {
                     case RECTANGLE:
                         actualShape = new AJRRectangle();
                         ((AJRRectangle)actualShape).setIsFill(fillMode);
+                        ((AJRRectangle)actualShape).setFillColor(activeColor);
                         break;
                     case ELLIPSE:
                         actualShape = new AJREllipse();
                         ((AJREllipse)actualShape).setIsFill(fillMode);
+                        ((AJREllipse)actualShape).setFillColor(activeColor);
                         break;
                 }
-                actualShape.createShape(initialPoint, activeColor, activeStrokeColor, antialiasingMode,
+                actualShape.createShape(initialPoint, activeStrokeColor, antialiasingMode,
                         activeComposite, stroke
                 );    
                 vShape.add(actualShape);

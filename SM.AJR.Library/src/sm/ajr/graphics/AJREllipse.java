@@ -48,10 +48,12 @@ public class AJREllipse extends AJRFillShape2D
     public void paint(Graphics2D g2d) 
     {
         super.paint(g2d);
-        if(this.getIsFill())
+        if(this.getIsFill()){
+            g2d.setColor(this.fillColor);
             g2d.fill(ellipse);
-        else
-            g2d.draw(ellipse);
+        }
+        g2d.setColor(this.strokeColor);
+        g2d.draw(ellipse);
     }
     
     /**
@@ -98,17 +100,17 @@ public class AJREllipse extends AJRFillShape2D
     /**
      * 
      * @param initPoint
-     * @param color
+     * @param strokeColor
      * @param hasAntialiasing
      * @param composite
      * @param stroke
      */
     @Override
-    public void createShape(Point2D initPoint, Color color, Color strokeColor,
+    public void createShape(Point2D initPoint,Color strokeColor,
             boolean hasAntialiasing, Composite composite, BasicStroke stroke)
     {
         super.createShape(
-                initPoint, color, strokeColor, hasAntialiasing, composite, stroke
+                initPoint, strokeColor, hasAntialiasing, composite, stroke
         );
         ellipse = new Ellipse2D.Float(
                 (float)initPoint.getX(), (float)initPoint.getY(), 0, 0
